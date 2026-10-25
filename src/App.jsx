@@ -51,10 +51,13 @@ import MafiaOnlinePlayerGameScreen from './components/mafia_online/MafiaOnlinePl
 // Компоненты игры «Стикеры» («Кто я?»)
 import { stickersSocket, stickersPlayerId } from './utils/stickersSocket';
 import StickersApp from './components/stickers/StickersApp';
+
+// Компоненты игры «Данетки»
+import DanetkiApp from './components/danetki/DanetkiApp';
 import './App.css';
 
 export function App() {
-  // 'menu' (Хаб игр) | 'spy' (Шпион) | 'party' (Слова-мины) | 'mafia' (Мафия) | 'bunker' (Бункер онлайн) | 'deception' (Криминалист) | 'stickers' (Стикеры)
+  // 'menu' (Хаб игр) | 'spy' (Шпион) | 'party' (Слова-мины) | 'mafia' (Мафия) | 'bunker' (Бункер онлайн) | 'deception' (Криминалист) | 'stickers' (Стикеры) | 'danetki' (Данетки)
   const [appMode, setAppMode] = useState(() => {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -62,6 +65,7 @@ export function App() {
       if (params.get('crime_room')) return 'deception';
       if (params.get('mafia_room')) return 'mafia';
       if (params.get('stickers_room')) return 'stickers';
+      if (params.get('danetki_room')) return 'danetki';
     } catch (e) {}
     return 'menu';
   });
@@ -805,6 +809,31 @@ export function App() {
               <ChevronRight className="w-5 h-5" />
             </div>
           </button>
+
+          {/* Игра 7: ДАНЕТКИ */}
+          <button
+            type="button"
+            onClick={() => setAppMode('danetki')}
+            className="w-full p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-emerald-950/80 via-slate-900 to-slate-900 border border-emerald-500/30 hover:border-emerald-400 active:border-emerald-400 text-left shadow-xl active:scale-[0.98] transition-all flex items-center justify-between gap-3 touch-manipulation group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-3xl shrink-0 group-hover:scale-105 transition-transform shadow-inner">
+                🧩
+              </div>
+              <div>
+                <div className="text-xs text-emerald-400 font-bold uppercase tracking-wider mb-1">
+                  Онлайн со смартфонов
+                </div>
+                <div className="text-xl font-black text-white">ДАНЕТКИ</div>
+                <div className="text-xs sm:text-sm text-slate-400 mt-1">
+                  Загадки на нестандартное мышление: ответы «Да/Нет» и детектив
+                </div>
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-center text-slate-400 group-hover:text-emerald-400 shrink-0">
+              <ChevronRight className="w-5 h-5" />
+            </div>
+          </button>
         </div>
 
         <footer className="text-center pt-2 pb-6 text-xs text-slate-500 font-medium">
@@ -1025,6 +1054,17 @@ export function App() {
           onBackToHub={() => setAppMode('menu')}
           onLeaveRoom={handleLeaveStickersRoom}
         />
+      </div>
+    );
+  }
+
+  // =============================================================
+  // РЕЖИМ 7: ДАНЕТКИ (Загадки «Да/Нет»)
+  // =============================================================
+  if (appMode === 'danetki') {
+    return (
+      <div className="relative min-h-[100dvh] bg-slate-950">
+        <DanetkiApp onBackToHub={() => setAppMode('menu')} />
       </div>
     );
   }
