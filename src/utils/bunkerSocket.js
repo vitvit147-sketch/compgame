@@ -3,6 +3,7 @@ import { database } from './firebase';
 import { ref, set, get, update, onValue, off, remove } from 'firebase/database';
 import {
   generateCharacter,
+  generateUniqueCharacters,
   getRandomCatastrophe,
   getRandomBunkerRooms,
   getRandomThreats
@@ -275,14 +276,15 @@ class BunkerSocketAdapter {
         const bunkerRooms = getRandomBunkerRooms(5);
         const threats = getRandomThreats(2);
 
-        // Каждому игроку генерируем карточки персонажа
+        // Каждому игроку генерируем уникальные карточки персонажа (без повторов в комнате!)
         const updatedPlayers = {};
-        players.forEach(p => {
+        const uniqueChars = generateUniqueCharacters(players.length);
+        players.forEach((p, idx) => {
           updatedPlayers[p.id] = {
             ...p,
             status: 'alive',
             votedFor: null,
-            character: generateCharacter()
+            character: uniqueChars[idx]
           };
         });
 
