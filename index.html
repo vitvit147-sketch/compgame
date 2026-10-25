@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕵️‍♂️</text></svg>" />
+    <title>Party Games Hub • Игры для компании</title>
+    <style>
+      /* Моментальный рендеринг без белых вспышек */
+      html, body {
+        overscroll-behavior-y: none;
+        touch-action: manipulation;
+        background-color: #030712;
+        color: #f8fafc;
+      }
+      ::selection {
+        background-color: #f59e0b;
+        color: #000;
+      }
+
+      /* 100% УНИЧТОЖЕНИЕ ВОДЯНОГО ЗНАКА "POWERED BY NETLIFY" */
+      a[href*="netlify.com"],
+      a[href*="netlify"],
+      [id*="netlify"],
+      [class*="netlify"],
+      [data-netlify-deploy-id],
+      [data-netlify-drawer],
+      div:has(> a[href*="netlify"]),
+      div:has(> [href*="netlify"]) {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: fixed !important;
+        top: -99999px !important;
+        left: -99999px !important;
+        width: 0 !important;
+        height: 0 !important;
+        clip-path: inset(100%) !important;
+        z-index: -9999 !important;
+      }
+    </style>
+    <script>
+      // Непрерывный ликвидатор плавающего бейджа Netlify из DOM
+      (function() {
+        function purgeNetlifyBadge() {
+          // 1. По ссылкам на netlify
+          document.querySelectorAll('a[href*="netlify"], [id*="netlify"], [class*="netlify"], [data-netlify-drawer]').forEach(function(el) {
+            var container = el.closest('div') || el;
+            try { container.remove(); } catch(e){}
+          });
+
+          // 2. По тексту "Powered by Netlify"
+          try {
+            var all = document.querySelectorAll('div, a, span, p, footer');
+            for (var i = 0; i < all.length; i++) {
+              var text = all[i].textContent || '';
+              if (text.indexOf('Powered by Netlify') !== -1) {
+                var p = all[i];
+                while (p.parentElement && p.parentElement !== document.body && p.parentElement.tagName !== 'BODY') {
+                  p = p.parentElement;
+                }
+                if (p && p !== document.body) {
+                  p.remove();
+                }
+              }
+            }
+          } catch(e){}
+        }
+
+        setInterval(purgeNetlifyBadge, 50);
+        document.addEventListener('DOMContentLoaded', purgeNetlifyBadge);
+        window.addEventListener('load', purgeNetlifyBadge);
+      })();
+    </script>
+  </head>
+  <body class="bg-slate-950 text-slate-100 antialiased selection:bg-amber-500 selection:text-black">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

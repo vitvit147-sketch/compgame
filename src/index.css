@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0a0d14;
+  --bg-secondary: #101623;
+  --bg-card: #182234;
+  --bg-card-hover: #1f2c42;
+  --border-color: #27354f;
+  --border-focus: #3b82f6;
+
+  --color-city: #38bdf8;
+  --color-mafia: #f43f5e;
+  --color-renegade: #c084fc;
+  --color-gold: #fbbf24;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --font-serif: Georgia, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all 0.15s ease-in-out;
+}
+
+input, select {
+  font-family: inherit;
+  outline: none;
+}
