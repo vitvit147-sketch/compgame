@@ -103,23 +103,23 @@ export default function BunkerGameScreen({ roomData, myPlayer, isHost }) {
         </div>
       </header>
 
-      <main className="p-4 space-y-4 pb-44">
+      <main className="px-5 sm:px-6 py-6 pb-48">
         {/* Оповещение об изгнании если игрок изгнан */}
         {isExiled && (
-          <div className="p-4 bg-rose-500/20 border border-rose-500/40 rounded-3xl text-center text-sm text-rose-300 font-bold shadow-lg">
+          <div className="mb-6 p-4 bg-rose-500/20 border-2 border-rose-500/40 rounded-3xl text-center text-sm text-rose-300 font-bold shadow-lg">
             💀 Вы были изгнаны наружу на голосовании! Но вы остаетесь в игре и наблюдаете за финалом.
           </div>
         )}
 
         {/* Карточка помещения бункера в текущем раунде */}
         {currentRoom.title && (
-          <section className="bg-gradient-to-r from-slate-900 via-sky-950/40 to-slate-900 border border-sky-500/30 rounded-3xl p-5 sm:p-6 shadow-md flex items-start gap-3.5">
+          <section className="mobile-card border-sky-500/40 flex items-start gap-3.5">
             <Shield className="w-6 h-6 text-sky-400 shrink-0 mt-0.5" />
             <div>
-              <div className="text-sm font-black text-sky-300">
+              <div className="text-sm sm:text-base font-black text-sky-300">
                 Помещение #{currentRound}: {currentRoom.title}
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed mt-1">
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mt-1">
                 {currentRoom.desc}
               </p>
             </div>
@@ -127,14 +127,14 @@ export default function BunkerGameScreen({ roomData, myPlayer, isHost }) {
         )}
 
         {/* Активный спикер и таймер речи */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl flex items-center justify-between gap-3">
+        <section className="mobile-card flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="text-3xl">{activeSpeaker?.avatar || '🦺'}</span>
             <div>
-              <div className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
+              <div className="text-xs font-black text-slate-400 uppercase tracking-wider">
                 Сейчас выступает:
               </div>
-              <div className="text-base font-black text-amber-300">
+              <div className="text-base sm:text-lg font-black text-amber-300">
                 {activeSpeaker?.name} {activeSpeaker?.id === myPlayer?.id && '(Вы)'}
               </div>
             </div>
@@ -144,7 +144,7 @@ export default function BunkerGameScreen({ roomData, myPlayer, isHost }) {
             <div className={`px-3 py-1.5 rounded-2xl font-mono font-black text-sm border shadow ${
               speakerTimer <= 10
                 ? 'bg-rose-500/20 border-rose-500 text-rose-400 animate-pulse'
-                : 'bg-slate-950 border-slate-800 text-amber-400'
+                : 'bg-slate-950 border-slate-700 text-amber-400'
             }`}>
               <Clock className="w-3.5 h-3.5 inline mr-1" />
               {speakerTimer}с
@@ -164,7 +164,7 @@ export default function BunkerGameScreen({ roomData, myPlayer, isHost }) {
         </section>
 
         {/* Переключатель вкладок (большие эргономичные кнопки) */}
-        <div className="grid grid-cols-2 gap-2 bg-slate-900 p-1.5 rounded-2xl border border-slate-800">
+        <div className="grid grid-cols-2 gap-2.5 bg-slate-900/90 p-2 rounded-2xl border border-slate-750 mb-6">
           <button
             type="button"
             onClick={() => setActiveTab('my_cards')}

@@ -68,7 +68,7 @@ export default function BunkerFinaleScreen({ roomData, myPlayer, isHost, onExitT
   };
 
   return (
-    <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto select-none overflow-y-auto">
+    <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-lg w-full mx-auto select-none overflow-y-auto">
       {/* Универсальный крупный мобильный хедер */}
       <GameHeader
         onBack={onExitToHome}
@@ -78,16 +78,16 @@ export default function BunkerFinaleScreen({ roomData, myPlayer, isHost, onExitT
         badge={isCompleteSuccess ? 'Победа' : 'Выживание'}
       />
 
-      <main className="p-4 space-y-4 pb-44">
+      <main className="px-5 sm:px-6 py-6 pb-48">
         {/* Шапка триумфа */}
-        <header className="text-center py-2 space-y-2">
-          <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-2xl shadow-amber-500/30 flex items-center justify-center">
+        <header className="text-center py-2 mb-6">
+          <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-2xl shadow-amber-500/30 flex items-center justify-center mb-3">
             <div className="w-full h-full bg-slate-900 rounded-[22px] flex items-center justify-center text-5xl">
               {isCompleteSuccess ? '🏆' : '☣️'}
             </div>
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-black uppercase tracking-widest">
+          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-black uppercase tracking-widest mb-3">
             <Sparkles className="w-4 h-4" />
             <span>Гермодвери запечатаны</span>
           </div>
@@ -96,7 +96,7 @@ export default function BunkerFinaleScreen({ roomData, myPlayer, isHost, onExitT
             {isCompleteSuccess ? 'Бункер выжил и возродил мир!' : 'Борьба за выживание продолжается'}
           </h1>
 
-          <p className="text-sm text-slate-300 max-w-xs mx-auto leading-relaxed font-medium">
+          <p className="text-sm sm:text-base text-slate-300 max-w-sm mx-auto mt-2 leading-relaxed font-medium">
             {isSurvivor
               ? 'Поздравляем! Вы прошли через строгий отбор и заняли спасительное место в убежище!'
               : 'Вы остались снаружи, но ваша жертва позволила укомплектовать убежище нужными кадрами.'}
@@ -104,10 +104,12 @@ export default function BunkerFinaleScreen({ roomData, myPlayer, isHost, onExitT
         </header>
 
         {/* Команда выживших внутри бункера */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
-          <div className="text-sm font-black text-emerald-400 flex items-center gap-2">
-            <Shield className="w-5 h-5" />
-            <span>Состав убежища ({survivors.length} чел.):</span>
+        <section className="mobile-card border-emerald-500/40">
+          <div className="mobile-card-header">
+            <div className="text-base sm:text-lg font-black text-emerald-400 flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              <span>Состав убежища ({survivors.length} чел.):</span>
+            </div>
           </div>
 
           <div className="space-y-2">

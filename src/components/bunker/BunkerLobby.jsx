@@ -71,23 +71,23 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
         rightAction={headerActions}
       />
 
-      <main className="px-5 sm:px-6 py-6 space-y-6 sm:space-y-7 pb-44">
+      <main className="px-5 sm:px-6 py-6 pb-44">
         {/* Карточка убежища и код комнаты */}
-        <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-4">
-          <div className="flex items-center justify-between">
+        <section className="mobile-card">
+          <div className="mobile-card-header">
             <span className="text-xs font-black text-amber-400 uppercase tracking-widest flex items-center gap-2">
               <Shield className="w-5 h-5" />
               <span>Номер убежища:</span>
             </span>
-            <span className="text-xs font-black text-slate-400 uppercase tracking-wider bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+            <span className="text-xs font-black text-slate-300 uppercase tracking-wider bg-slate-800/90 px-3 py-1 rounded-full border border-slate-700">
               {players.length} у входа
             </span>
           </div>
 
-          <div className="flex items-center justify-between bg-slate-950/80 border border-slate-800 p-5 rounded-2xl">
+          <div className="flex items-center justify-between bg-slate-950/80 border border-slate-700/80 p-5 rounded-2xl">
             <div>
               <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">Код для друзей:</div>
-              <div className="text-4xl sm:text-5xl font-black font-mono tracking-widest text-amber-400 mt-0.5">
+              <div className="text-4xl sm:text-5xl font-black font-mono tracking-widest text-amber-400 mt-1">
                 {roomCode}
               </div>
             </div>
@@ -100,15 +100,17 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
               <span>QR-код</span>
             </button>
           </div>
-        </div>
+        </section>
 
         {/* Настройка таймера на выступление (для хоста) */}
         {isHost && (
-          <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-4">
-            <label className="text-base font-black text-slate-200 flex items-center gap-2.5">
-              <Clock className="w-5 h-5 text-amber-400" />
-              <span>Время на речь выжившего в раунде:</span>
-            </label>
+          <section className="mobile-card">
+            <div className="mobile-card-header">
+              <label className="text-base font-black text-slate-200 flex items-center gap-2.5">
+                <Clock className="w-5 h-5 text-amber-400" />
+                <span>Время на речь выжившего в раунде:</span>
+              </label>
+            </div>
             <div className="grid grid-cols-3 gap-3">
               {[30, 45, 60].map(sec => (
                 <button
@@ -118,7 +120,7 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
                   className={`min-h-[54px] py-3 rounded-2xl text-base font-black transition-all border active:scale-95 touch-manipulation ${
                     speakerSeconds === sec
                       ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md ring-1 ring-amber-400/40'
-                      : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:bg-slate-850'
+                      : 'bg-slate-950/70 border-slate-750 text-slate-400 hover:bg-slate-850'
                   }`}
                 >
                   {sec} сек
@@ -129,9 +131,9 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
         )}
 
         {/* Список собравшихся участников */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-4">
-          <div className="flex items-center justify-between text-base font-black text-slate-200">
-            <span>Очередь перед гермодверью ({players.length}):</span>
+        <section className="mobile-card">
+          <div className="mobile-card-header">
+            <span className="font-black text-slate-200 text-base">Очередь перед гермодверью ({players.length}):</span>
             <span className="text-amber-400 text-xs font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
               {players.length < 3 ? 'Нужно мин. 3 чел.' : 'Готовы к входу'}
             </span>

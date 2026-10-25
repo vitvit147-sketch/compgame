@@ -304,26 +304,28 @@ export default function SpyGame({ onBackToHub }) {
             badge="Pass & Play"
           />
 
-          {/* Основной контент: просторный, с большими отступами между карточками (space-y-8 sm:space-y-9) */}
-          <main className="max-w-lg w-full mx-auto px-5 sm:px-6 py-6 space-y-8 sm:space-y-9 pb-48 overflow-y-auto">
+          {/* Основной контент: просторный, с изолированными карточками и большими отступами */}
+          <main className="max-w-lg w-full mx-auto px-5 sm:px-6 py-6 pb-48 overflow-y-auto">
             {/* Описание игры */}
-            <div className="text-center pt-1 pb-2">
+            <div className="text-center pt-2 pb-6">
               <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight uppercase">
                 Находка для шпиона
               </h1>
-              <p className="text-sm sm:text-base text-slate-400 mt-2 max-w-sm mx-auto leading-relaxed font-medium">
+              <p className="text-sm sm:text-base text-slate-400 mt-2.5 max-w-sm mx-auto leading-relaxed font-medium">
                 Игра на одном телефоне. Задавайте наводящие вопросы, блефуйте и вычислите предателя!
               </p>
             </div>
 
             {/* Карточка 0: Готовые сценарии партий (Пресеты, как в Мафии) */}
-            <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-4">
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-5 h-5 text-amber-400" />
-                <h2 className="text-lg font-black text-white">Готовые сценарии партий</h2>
+            <section className="mobile-card">
+              <div className="mobile-card-header">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="w-5 h-5 text-amber-400" />
+                  <h2 className="text-lg sm:text-xl font-black text-white">Готовые сценарии партий</h2>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 {SPY_PRESETS.map(preset => {
                   const active = isPresetActive(preset);
                   return (
@@ -334,7 +336,7 @@ export default function SpyGame({ onBackToHub }) {
                       className={`p-5 rounded-2xl text-left border transition-all active:scale-98 touch-manipulation ${
                         active
                           ? 'bg-amber-500/15 border-amber-500 text-white shadow-lg ring-1 ring-amber-500/40'
-                          : 'bg-slate-950/70 border-slate-800 text-slate-300 hover:bg-slate-850'
+                          : 'bg-slate-950/70 border-slate-750 text-slate-300 hover:bg-slate-850'
                       }`}
                     >
                       <div className="font-extrabold text-base text-white flex items-center justify-between mb-1.5">
@@ -349,9 +351,9 @@ export default function SpyGame({ onBackToHub }) {
             </section>
 
             {/* Карточка 1: Количество участников */}
-            <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-lg font-black text-white">
+            <section className="mobile-card">
+              <div className="mobile-card-header">
+                <div className="flex items-center gap-3 text-lg sm:text-xl font-black text-white">
                   <Users className="w-6 h-6 text-sky-400" />
                   <span>Игроки за столом</span>
                 </div>
@@ -361,7 +363,7 @@ export default function SpyGame({ onBackToHub }) {
               </div>
 
               {/* Большой удобный счетчик с кнопками +/- (56px+) */}
-              <div className="flex items-center justify-between gap-5 py-3">
+              <div className="flex items-center justify-between gap-5 py-4 mb-5">
                 <button
                   type="button"
                   onClick={() => setPlayerCount(p => Math.max(3, p - 1))}
@@ -391,36 +393,41 @@ export default function SpyGame({ onBackToHub }) {
               </div>
 
               {/* Быстрые кнопки пресетов (3 колонки х 2 строки для комфортных тач-таргетов) */}
-              <div className="grid grid-cols-3 gap-3 pt-1">
-                {[
-                  { num: 4, label: '4 игрока' },
-                  { num: 5, label: '5 игроков' },
-                  { num: 6, label: '6 игроков' },
-                  { num: 8, label: '8 игроков' },
-                  { num: 10, label: '10 игроков' },
-                  { num: 12, label: '12 игроков' }
-                ].map(item => (
-                  <button
-                    key={item.num}
-                    type="button"
-                    onClick={() => setPlayerCount(item.num)}
-                    className={`min-h-[50px] py-3 px-2 rounded-2xl text-sm font-black transition-all border active:scale-95 touch-manipulation flex items-center justify-center ${
-                      playerCount === item.num
-                        ? 'bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-950/50'
-                        : 'bg-slate-950/70 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-white'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
+              <div>
+                <label className="mobile-label">
+                  <span>Быстрый выбор количества:</span>
+                </label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { num: 4, label: '4 игрока' },
+                    { num: 5, label: '5 игроков' },
+                    { num: 6, label: '6 игроков' },
+                    { num: 8, label: '8 игроков' },
+                    { num: 10, label: '10 игроков' },
+                    { num: 12, label: '12 игроков' }
+                  ].map(item => (
+                    <button
+                      key={item.num}
+                      type="button"
+                      onClick={() => setPlayerCount(item.num)}
+                      className={`min-h-[50px] py-3 px-2 rounded-2xl text-sm font-black transition-all border active:scale-95 touch-manipulation flex items-center justify-center ${
+                        playerCount === item.num
+                          ? 'bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-950/50'
+                          : 'bg-slate-950/70 text-slate-400 border-slate-750 hover:bg-slate-800 hover:text-white'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </section>
 
             {/* Карточка 2: Формат и время */}
-            <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-6">
-              <div>
-                <label className="block text-xs font-black text-slate-300 uppercase tracking-widest mb-3">
-                  Шпионов в партии
+            <section className="mobile-card">
+              <div className="mb-6">
+                <label className="mobile-label">
+                  <span>Шпионов в партии:</span>
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <button
@@ -429,7 +436,7 @@ export default function SpyGame({ onBackToHub }) {
                     className={`p-5 rounded-2xl text-left border transition-all active:scale-98 touch-manipulation ${
                       spyCount === 1
                         ? 'bg-rose-500/20 border-rose-500 text-white shadow-xl shadow-rose-950/40 ring-1 ring-rose-500/30'
-                        : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:bg-slate-800'
+                        : 'bg-slate-950/70 border-slate-750 text-slate-400 hover:bg-slate-800'
                     }`}
                   >
                     <div className="font-black text-base flex items-center justify-between">
@@ -448,7 +455,7 @@ export default function SpyGame({ onBackToHub }) {
                         ? 'bg-rose-500/20 border-rose-500 text-white shadow-xl shadow-rose-950/40 ring-1 ring-rose-500/30'
                         : playerCount < 5
                         ? 'opacity-35 cursor-not-allowed bg-slate-950/30 border-slate-850 text-slate-600'
-                        : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:bg-slate-800'
+                        : 'bg-slate-950/70 border-slate-750 text-slate-400 hover:bg-slate-800'
                     }`}
                   >
                     <div className="font-black text-base flex items-center justify-between">
@@ -460,8 +467,8 @@ export default function SpyGame({ onBackToHub }) {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-800/80">
-                <label className="block text-xs font-black text-slate-300 uppercase tracking-widest mb-3 flex items-center justify-between">
+              <div className="pt-5 border-t border-slate-800/80">
+                <label className="mobile-label justify-between">
                   <span className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-amber-400" />
                     Время раунда на вопросы
@@ -483,7 +490,7 @@ export default function SpyGame({ onBackToHub }) {
                       className={`min-h-[58px] py-3.5 px-3 rounded-2xl text-center border transition-all active:scale-95 touch-manipulation ${
                         roundMinutes === item.val
                           ? 'bg-amber-500/20 border-amber-500 text-amber-300 shadow-lg ring-1 ring-amber-500/40'
-                          : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:bg-slate-800'
+                          : 'bg-slate-950/70 border-slate-750 text-slate-400 hover:bg-slate-800'
                       }`}
                     >
                       <div className="text-base font-black">{item.label}</div>
@@ -495,50 +502,54 @@ export default function SpyGame({ onBackToHub }) {
             </section>
 
             {/* Карточка 3: Опции и механики */}
-            <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-4">
-              <h2 className="text-xs font-black text-slate-300 uppercase tracking-widest mb-1">
-                Дополнительные правила
-              </h2>
+            <section className="mobile-card">
+              <div className="mobile-card-header">
+                <h2 className="text-xs font-black text-slate-300 uppercase tracking-widest">
+                  Дополнительные правила
+                </h2>
+              </div>
 
-              <label className="flex items-center justify-between p-5 sm:p-6 rounded-2xl bg-slate-950/70 border border-slate-800 active:bg-slate-900 cursor-pointer transition-all touch-manipulation gap-4">
-                <div className="pr-2">
-                  <div className="font-extrabold text-base text-slate-100">
-                    🎭 Роли и профессии внутри локации
+              <div className="space-y-4">
+                <label className="flex items-center justify-between p-5 sm:p-6 rounded-2xl bg-slate-950/70 border border-slate-750 active:bg-slate-900 cursor-pointer transition-all touch-manipulation gap-4">
+                  <div className="pr-2">
+                    <div className="font-extrabold text-base text-slate-100">
+                      🎭 Роли и профессии внутри локации
+                    </div>
+                    <div className="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed font-medium">
+                      Каждый мирный житель получает должность (врач, турист, капитан, охранник...)
+                    </div>
                   </div>
-                  <div className="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed font-medium">
-                    Каждый мирный житель получает должность (врач, турист, капитан, охранник...)
-                  </div>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={enableRoles}
-                  onChange={(e) => setEnableRoles(e.target.checked)}
-                  className="w-6 h-6 accent-amber-500 rounded-lg cursor-pointer flex-shrink-0"
-                />
-              </label>
+                  <input
+                    type="checkbox"
+                    checked={enableRoles}
+                    onChange={(e) => setEnableRoles(e.target.checked)}
+                    className="w-6 h-6 accent-amber-500 rounded-lg cursor-pointer flex-shrink-0"
+                  />
+                </label>
 
-              <label className="flex items-center justify-between p-5 sm:p-6 rounded-2xl bg-slate-950/70 border border-slate-800 active:bg-slate-900 cursor-pointer transition-all touch-manipulation gap-4">
-                <div className="pr-2">
-                  <div className="font-extrabold text-base text-slate-100">
-                    💡 Подсказка шпиону (фора)
+                <label className="flex items-center justify-between p-5 sm:p-6 rounded-2xl bg-slate-950/70 border border-slate-750 active:bg-slate-900 cursor-pointer transition-all touch-manipulation gap-4">
+                  <div className="pr-2">
+                    <div className="font-extrabold text-base text-slate-100">
+                      💡 Подсказка шпиону (фора)
+                    </div>
+                    <div className="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed font-medium">
+                      Шпион видит общую тему (например «Транспорт» или «Отдых») для баланса
+                    </div>
                   </div>
-                  <div className="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed font-medium">
-                    Шпион видит общую тему (например «Транспорт» или «Отдых») для баланса
-                  </div>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={spyCategoryHint}
-                  onChange={(e) => setSpyCategoryHint(e.target.checked)}
-                  className="w-6 h-6 accent-amber-500 rounded-lg cursor-pointer flex-shrink-0"
-                />
-              </label>
+                  <input
+                    type="checkbox"
+                    checked={spyCategoryHint}
+                    onChange={(e) => setSpyCategoryHint(e.target.checked)}
+                    className="w-6 h-6 accent-amber-500 rounded-lg cursor-pointer flex-shrink-0"
+                  />
+                </label>
+              </div>
             </section>
 
             {/* Карточка 4: Наборы локаций */}
-            <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-lg font-black text-white">
+            <section className="mobile-card">
+              <div className="mobile-card-header">
+                <div className="flex items-center gap-3 text-lg sm:text-xl font-black text-white">
                   <MapPin className="w-5 h-5 text-emerald-400" />
                   <span>Наборы локаций</span>
                 </div>
@@ -547,7 +558,7 @@ export default function SpyGame({ onBackToHub }) {
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 {Object.values(SPY_CATEGORIES).map(cat => {
                   const isChecked = selectedCategories.includes(cat.id);
                   return (
@@ -558,7 +569,7 @@ export default function SpyGame({ onBackToHub }) {
                       className={`p-5 rounded-2xl text-left border transition-all flex items-center justify-between gap-3 touch-manipulation active:scale-[0.98] ${
                         isChecked
                           ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300 shadow ring-1 ring-emerald-500/30'
-                          : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:bg-slate-800'
+                          : 'bg-slate-950/60 border-slate-750 text-slate-400 hover:bg-slate-800'
                       }`}
                     >
                       <span className="text-sm font-extrabold leading-tight">{cat.name}</span>
@@ -570,12 +581,14 @@ export default function SpyGame({ onBackToHub }) {
             </section>
 
             {/* Карточка 5: Краткие советы ведущему и игрокам */}
-            <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-3.5">
-              <div className="flex items-center gap-2.5 text-base font-black text-amber-400">
-                <Lightbulb className="w-5 h-5" />
-                <span>Как играть и побеждать:</span>
+            <section className="mobile-card">
+              <div className="mobile-card-header">
+                <div className="flex items-center gap-2.5 text-base font-black text-amber-400">
+                  <Lightbulb className="w-5 h-5" />
+                  <span>Как играть и побеждать:</span>
+                </div>
               </div>
-              <div className="space-y-2 text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
+              <div className="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
                 <div>• <strong>Мирным:</strong> не задавайте слишком прямые вопросы («Ты капитан корабля?»), иначе шпион сразу поймет локацию. Задавайте вопросы с двойным дном!</div>
                 <div>• <strong>Шпиону:</strong> слушайте внимательно, не спешите с ответом, цепляйтесь за общие слова и старайтесь отвести подозрения на соседа.</div>
               </div>

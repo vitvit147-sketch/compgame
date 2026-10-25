@@ -13,7 +13,8 @@ import {
   HelpCircle,
   AlertTriangle,
   Flame,
-  Target
+  Target,
+  Lightbulb
 } from 'lucide-react';
 
 const TRAPWORDS_AVATARS = ['💣', '🕵️', '🤠', '🤖', '🧙', '🦊', '👑', '🕶️'];
@@ -88,11 +89,11 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
         badge="Онлайн"
       />
 
-      {/* Основной скроллируемый контент: широкий, просторный, с большими отступами между карточками (space-y-6 sm:space-y-8) */}
-      <main className="max-w-lg w-full mx-auto px-5 sm:px-6 py-6 space-y-6 sm:space-y-7 pb-28 overflow-y-auto">
+      {/* Основной контент: с четкими изолированными карточками и большими отступами */}
+      <main className="max-w-lg w-full mx-auto px-5 sm:px-6 py-6 pb-32 overflow-y-auto">
         {/* Заголовок игры */}
-        <div className="text-center pt-1 pb-2">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-black uppercase tracking-widest mb-3">
+        <div className="text-center pt-2 pb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-black uppercase tracking-widest mb-3 shadow-sm">
             <Flame className="w-4 h-4 text-rose-400" />
             <span>Командная дуэль умов</span>
           </div>
@@ -102,39 +103,39 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
             <span className="text-3xl sm:text-4xl font-black text-amber-400 uppercase tracking-tight">МИНЫ</span>
             <span className="text-3xl">💣</span>
           </div>
-          <p className="text-sm sm:text-base text-slate-400 mt-2 max-w-sm mx-auto leading-relaxed font-medium">
+          <p className="text-sm sm:text-base text-slate-400 mt-2.5 max-w-sm mx-auto leading-relaxed font-medium">
             Командная битва на блеф, ассоциации и скрытые ловушки. Объясняйте слова, избегая чужих мин!
           </p>
         </div>
 
         {/* Ошибка если была */}
         {errorMessage && (
-          <div className="p-5 bg-rose-500/20 border-2 border-rose-500/40 rounded-3xl text-rose-200 text-sm font-bold text-center flex items-center justify-center gap-3 shadow-lg">
+          <div className="mb-7 p-5 bg-rose-500/20 border-2 border-rose-500/40 rounded-3xl text-rose-200 text-sm font-bold text-center flex items-center justify-center gap-3 shadow-lg">
             <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
 
         {/* ================================================================= */}
-        {/* КАРТОЧКА 1: ПРОФИЛЬ ИГРОКА (Аватар + Широкое поле ввода)          */}
+        {/* КАРТОЧКА 1: ПРОФИЛЬ ИГРОКА (Аватар + Поле ввода)                  */}
         {/* ================================================================= */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-5">
-          <div className="flex items-center justify-between">
+        <section className="mobile-card">
+          <div className="mobile-card-header">
             <div className="flex items-center gap-3">
               <span className="text-2xl">{selectedAvatar}</span>
-              <h2 className="text-lg font-black text-white">Ваш профиль игрока</h2>
+              <h2 className="text-lg sm:text-xl font-black text-white">Ваш профиль игрока</h2>
             </div>
-            <span className="text-xs font-bold text-slate-400 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+            <span className="text-xs font-extrabold text-slate-300 bg-slate-800/90 px-3 py-1 rounded-full border border-slate-700">
               Шаг 1
             </span>
           </div>
 
-          {/* Выбор аватара */}
-          <div>
-            <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-2.5">
-              Выберите игровой аватар:
+          {/* 1.1 Выбор аватара */}
+          <div className="mb-6">
+            <label className="mobile-label">
+              <span>Выберите игровой аватар:</span>
             </label>
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2.5">
+            <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
               {TRAPWORDS_AVATARS.map((emoji) => (
                 <button
                   key={emoji}
@@ -143,10 +144,10 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
                     sounds.playTap();
                     setSelectedAvatar(emoji);
                   }}
-                  className={`min-h-[50px] py-2 rounded-2xl text-2xl flex items-center justify-center border transition-all active:scale-95 touch-manipulation ${
+                  className={`min-h-[54px] py-2.5 rounded-2xl text-2xl flex items-center justify-center border transition-all active:scale-95 touch-manipulation ${
                     selectedAvatar === emoji
                       ? 'bg-rose-500/25 border-rose-400 shadow-md ring-2 ring-rose-400/40 scale-105'
-                      : 'bg-slate-950/70 border-slate-800 hover:bg-slate-800'
+                      : 'bg-slate-950/80 border-slate-700/60 hover:bg-slate-800'
                   }`}
                 >
                   {emoji}
@@ -155,10 +156,10 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
             </div>
           </div>
 
-          {/* Широкое поле ввода имени */}
+          {/* 1.2 Поле ввода имени */}
           <div>
-            <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-2.5">
-              Ваше имя или никнейм:
+            <label className="mobile-label">
+              <span>Ваше имя или никнейм:</span>
             </label>
             <input
               type="text"
@@ -166,7 +167,7 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
               onChange={(e) => setPlayerName(e.target.value)}
               placeholder="Например: Артур, Лиза, Капитан"
               maxLength={20}
-              className="w-full px-5 py-4 sm:py-5 bg-slate-950 border-2 border-slate-700/80 focus:border-rose-400 focus:ring-4 focus:ring-rose-400/20 rounded-2xl text-white placeholder-slate-600 text-lg sm:text-xl font-bold transition-all outline-none"
+              className="w-full px-5 py-4 sm:py-4.5 bg-slate-950 border-2 border-slate-700/80 focus:border-rose-400 focus:ring-4 focus:ring-rose-400/20 rounded-2xl text-white placeholder-slate-600 text-lg sm:text-xl font-bold transition-all outline-none"
             />
           </div>
         </section>
@@ -174,9 +175,9 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
         {/* ================================================================= */}
         {/* КАРТОЧКА 2: СОЗДАТЬ СТОЛ (ХОСТ)                                    */}
         {/* ================================================================= */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-5">
-          <div className="flex items-center justify-between">
-            <div className="text-lg font-black text-white flex items-center gap-3">
+        <section className="mobile-card">
+          <div className="mobile-card-header">
+            <div className="text-lg sm:text-xl font-black text-white flex items-center gap-3">
               <Shield className="w-6 h-6 text-rose-400" />
               <span>Создать новую комнату</span>
             </div>
@@ -185,15 +186,15 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
             </span>
           </div>
 
-          <p className="text-sm text-slate-300 leading-relaxed font-medium">
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-medium mb-6">
             Создайте комнату для двух команд: 🔴 Красные против 🔵 Синие. Вы получите 4-значный PIN-код или QR для друзей.
           </p>
 
           {/* Настройка целевых очков */}
-          <div className="pt-1">
-            <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2.5 flex items-center gap-2">
+          <div className="mb-7">
+            <label className="mobile-label">
               <Target className="w-4 h-4 text-rose-400" />
-              Очков для победы в матче:
+              <span>Очков для победы в матче:</span>
             </label>
             <div className="grid grid-cols-3 gap-3">
               {[
@@ -208,10 +209,10 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
                     sounds.playTap();
                     setTargetScorePreset(item.val);
                   }}
-                  className={`min-h-[54px] py-3 px-2 rounded-2xl text-center border transition-all active:scale-95 touch-manipulation ${
+                  className={`min-h-[58px] py-3.5 px-2 rounded-2xl text-center border transition-all active:scale-95 touch-manipulation ${
                     targetScorePreset === item.val
-                      ? 'bg-rose-500/20 border-rose-400 text-rose-300 shadow-md ring-1 ring-rose-400/40'
-                      : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:bg-slate-800'
+                      ? 'bg-rose-500/25 border-rose-400 text-rose-300 shadow-md ring-1 ring-rose-400/40'
+                      : 'bg-slate-950/80 border-slate-700/60 text-slate-400 hover:bg-slate-800'
                   }`}
                 >
                   <div className="text-base font-black">{item.label}</div>
@@ -246,9 +247,9 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
         {/* ================================================================= */}
         {/* КАРТОЧКА 3: ВОЙТИ ПО КОДУ (ИГРОК)                                 */}
         {/* ================================================================= */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-5">
-          <div className="flex items-center justify-between">
-            <div className="text-lg font-black text-white flex items-center gap-3">
+        <section className="mobile-card">
+          <div className="mobile-card-header">
+            <div className="text-lg sm:text-xl font-black text-white flex items-center gap-3">
               <Users className="w-6 h-6 text-sky-400" />
               <span>Войти по коду комнаты</span>
             </div>
@@ -257,14 +258,14 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
             </span>
           </div>
 
-          <p className="text-sm text-slate-300 leading-relaxed font-medium">
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-medium mb-6">
             Если хост уже запустил лобби, введите 4 цифры комнаты с его смартфона:
           </p>
 
-          <form onSubmit={handleJoinRoom} className="space-y-4 pt-1">
-            <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2.5">
-                4-значный код комнаты:
+          <form onSubmit={handleJoinRoom}>
+            <div className="mb-6">
+              <label className="mobile-label">
+                <span>4-значный код комнаты:</span>
               </label>
               <input
                 type="text"
@@ -302,15 +303,17 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
         {/* ================================================================= */}
         {/* КАРТОЧКА 4: ПРАВИЛА ИГРЫ «СЛОВА-МИНЫ»                             */}
         {/* ================================================================= */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-4">
-          <div className="flex items-center gap-3">
-            <HelpCircle className="w-6 h-6 text-rose-400" />
-            <h2 className="text-lg font-black text-white">Как устроена игра «Слова-Мины»</h2>
+        <section className="mobile-card">
+          <div className="mobile-card-header">
+            <div className="flex items-center gap-3">
+              <HelpCircle className="w-6 h-6 text-rose-400" />
+              <h2 className="text-lg sm:text-xl font-black text-white">Как устроена игра «Слова-Мины»</h2>
+            </div>
           </div>
 
-          <div className="space-y-3 pt-1">
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
-              <div className="font-extrabold text-sm sm:text-base text-rose-300 flex items-center gap-2">
+          <div className="space-y-4">
+            <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-700/60 space-y-2">
+              <div className="font-extrabold text-base text-rose-300 flex items-center gap-2">
                 <span>💣 1. Скрытые слова-ловушки</span>
               </div>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
@@ -318,8 +321,8 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
-              <div className="font-extrabold text-sm sm:text-base text-amber-300 flex items-center gap-2">
+            <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-700/60 space-y-2">
+              <div className="font-extrabold text-base text-amber-300 flex items-center gap-2">
                 <span>🗣️ 2. Объяснение без мин</span>
               </div>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
@@ -327,8 +330,8 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
-              <div className="font-extrabold text-sm sm:text-base text-sky-300 flex items-center gap-2">
+            <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-700/60 space-y-2">
+              <div className="font-extrabold text-base text-sky-300 flex items-center gap-2">
                 <span>💥 3. Кнопка «БАХ!» со смартфона</span>
               </div>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
@@ -336,8 +339,8 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
-              <div className="font-extrabold text-sm sm:text-base text-emerald-300 flex items-center gap-2">
+            <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-700/60 space-y-2">
+              <div className="font-extrabold text-base text-emerald-300 flex items-center gap-2">
                 <span>🏆 4. Гонка команд</span>
               </div>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
@@ -350,19 +353,21 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
         {/* ================================================================= */}
         {/* КАРТОЧКА 5: СОВЕТЫ ПО СТРАТЕГИИ                                   */}
         {/* ================================================================= */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-3">
-          <div className="flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-amber-400" />
-            <h2 className="text-base font-black text-white">Стратегические подсказки</h2>
+        <section className="mobile-card">
+          <div className="mobile-card-header">
+            <div className="flex items-center gap-3">
+              <Lightbulb className="w-6 h-6 text-amber-400" />
+              <h2 className="text-lg font-black text-white">Стратегические подсказки</h2>
+            </div>
           </div>
-          <ul className="text-xs sm:text-sm text-slate-300 space-y-2 leading-relaxed font-medium list-disc list-inside">
+          <ul className="text-xs sm:text-sm text-slate-300 space-y-3 leading-relaxed font-medium list-disc list-inside">
             <li>Минируйте не только очевидные ассоциации, но и служебные слова или части предмета.</li>
             <li>Ведущему выгодно строить рассказ через метафоры и антонимы, чтобы обойти ловушки.</li>
             <li>Следите за реакцией соперников во время своего объяснения.</li>
           </ul>
         </section>
 
-        <footer className="text-center pt-2 pb-4 text-xs text-slate-500 font-medium">
+        <footer className="text-center pt-2 pb-6 text-xs text-slate-500 font-medium">
           Для 4–16 человек • Две команды • Синхронизация ловушек и таймера в реальном времени
         </footer>
       </main>

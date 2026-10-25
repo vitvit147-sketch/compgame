@@ -270,39 +270,39 @@ export function App() {
   // =============================================================
   if (appMode === 'menu') {
     return (
-      <div className="min-h-[100dvh] bg-slate-950 text-slate-100 px-4 pt-[max(1rem,env(safe-area-inset-top,0px))] pb-[max(2rem,env(safe-area-inset-bottom,0px))] max-w-md w-full mx-auto flex flex-col justify-start select-none overflow-y-auto">
+      <div className="min-h-[100dvh] bg-slate-950 text-slate-100 px-5 sm:px-6 pt-[max(1.25rem,env(safe-area-inset-top,0px))] pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] max-w-lg w-full mx-auto flex flex-col justify-start select-none overflow-y-auto">
         {/* Заголовок хаба */}
-        <header className="text-center pt-3 pb-2">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-black uppercase tracking-widest mb-2 shadow-sm">
+        <header className="text-center pt-3 pb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-black uppercase tracking-widest mb-3 shadow-sm">
             <Sparkles className="w-4 h-4 text-amber-400" />
             <span>Party Games Hub</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white uppercase">
             Игры для компании
           </h1>
-          <p className="text-sm text-slate-400 max-w-xs mx-auto mt-1.5 leading-relaxed font-medium">
+          <p className="text-sm sm:text-base text-slate-400 max-w-sm mx-auto mt-2 leading-relaxed font-medium">
             Выберите формат для вашей вечеринки или посиделок
           </p>
         </header>
 
         {/* Список карточек игр с удобными большими кликабельными зонами */}
-        <div className="space-y-4 pt-4 pb-6">
+        <div className="space-y-5 pt-3 pb-8">
           {/* Игра 1: ШПИОН */}
           <button
             type="button"
             onClick={() => setAppMode('spy')}
-            className="w-full p-5 rounded-3xl bg-gradient-to-br from-indigo-950/80 via-slate-900 to-slate-900 border border-indigo-500/30 hover:border-indigo-400/60 active:border-indigo-400 text-left shadow-xl active:scale-[0.98] transition-all flex items-center justify-between gap-3 touch-manipulation group"
+            className="w-full p-6 rounded-3xl bg-gradient-to-br from-indigo-950/90 via-slate-900 to-slate-900 border border-indigo-500/40 hover:border-indigo-400 active:border-indigo-400 text-left shadow-2xl active:scale-[0.98] transition-all flex items-center justify-between gap-3 touch-manipulation group"
           >
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-3xl shrink-0 group-hover:scale-105 transition-transform shadow-inner">
                 🕵️‍♂️
               </div>
               <div>
-                <div className="text-xs text-indigo-400 font-extrabold uppercase tracking-wider mb-0.5">
+                <div className="text-xs text-indigo-400 font-extrabold uppercase tracking-wider mb-1">
                   На 1 телефоне • Pass & Play
                 </div>
                 <div className="text-xl font-black text-white">ШПИОН (Spyfall)</div>
-                <div className="text-xs sm:text-sm text-slate-400 mt-0.5">
+                <div className="text-xs sm:text-sm text-slate-400 mt-1">
                   40+ локаций и ролей • Без интернета
                 </div>
               </div>
@@ -316,19 +316,19 @@ export function App() {
           <button
             type="button"
             onClick={() => setAppMode('bunker')}
-            className="w-full p-5 rounded-3xl bg-gradient-to-br from-amber-950/80 via-slate-900 to-slate-900 border border-amber-500/40 hover:border-amber-400 active:border-amber-400 text-left shadow-xl active:scale-[0.98] transition-all flex items-center justify-between gap-3 touch-manipulation group"
+            className="w-full p-6 rounded-3xl bg-gradient-to-br from-amber-950/90 via-slate-900 to-slate-900 border border-amber-500/40 hover:border-amber-400 active:border-amber-400 text-left shadow-2xl active:scale-[0.98] transition-all flex items-center justify-between gap-3 touch-manipulation group"
           >
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-3xl shrink-0 group-hover:scale-105 transition-transform shadow-inner">
                 ☢️
               </div>
               <div>
-                <div className="text-xs text-amber-400 font-extrabold uppercase tracking-wider flex items-center gap-1.5 mb-0.5">
+                <div className="text-xs text-amber-400 font-extrabold uppercase tracking-wider flex items-center gap-1.5 mb-1">
                   <span>Онлайн со смартфонов</span>
                   <span className="bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full text-[10px] font-black tracking-normal">ХИТ</span>
                 </div>
                 <div className="text-xl font-black text-white">БУНКЕР (Bunker 3.0)</div>
-                <div className="text-xs sm:text-sm text-slate-400 mt-0.5">
+                <div className="text-xs sm:text-sm text-slate-400 mt-1">
                   Карточки выживших, катастрофа и тайное голосование
                 </div>
               </div>
@@ -342,18 +342,18 @@ export function App() {
           <button
             type="button"
             onClick={() => setAppMode('mafia')}
-            className="w-full p-5 rounded-3xl bg-gradient-to-br from-purple-950/80 via-slate-900 to-slate-900 border border-purple-500/30 hover:border-purple-400/60 active:border-purple-400 text-left shadow-xl active:scale-[0.98] transition-all flex items-center justify-between gap-3 touch-manipulation group"
+            className="w-full p-6 rounded-3xl bg-gradient-to-br from-purple-950/90 via-slate-900 to-slate-900 border border-purple-500/40 hover:border-purple-400 active:border-purple-400 text-left shadow-2xl active:scale-[0.98] transition-all flex items-center justify-between gap-3 touch-manipulation group"
           >
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-3xl shrink-0 group-hover:scale-105 transition-transform shadow-inner">
                 🎭
               </div>
               <div>
-                <div className="text-xs text-purple-400 font-extrabold uppercase tracking-wider mb-0.5">
+                <div className="text-xs text-purple-400 font-extrabold uppercase tracking-wider mb-1">
                   Оффлайн-пульт ведущего
                 </div>
                 <div className="text-xl font-black text-white">Мафия (Пульт ведущего)</div>
-                <div className="text-xs sm:text-sm text-slate-400 mt-0.5">
+                <div className="text-xs sm:text-sm text-slate-400 mt-1">
                   Все роли, таймер, фолы и авто-расчет ночи
                 </div>
               </div>
@@ -367,18 +367,18 @@ export function App() {
           <button
             type="button"
             onClick={() => setAppMode('party')}
-            className="w-full p-5 rounded-3xl bg-gradient-to-br from-rose-950/80 via-slate-900 to-slate-900 border border-rose-500/30 hover:border-rose-400/60 active:border-rose-400 text-left shadow-xl active:scale-[0.98] transition-all flex items-center justify-between gap-3 touch-manipulation group"
+            className="w-full p-6 rounded-3xl bg-gradient-to-br from-rose-950/90 via-slate-900 to-slate-900 border border-rose-500/40 hover:border-rose-400 active:border-rose-400 text-left shadow-2xl active:scale-[0.98] transition-all flex items-center justify-between gap-3 touch-manipulation group"
           >
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-3xl shrink-0 group-hover:scale-105 transition-transform shadow-inner">
                 💣
               </div>
               <div>
-                <div className="text-xs text-rose-400 font-extrabold uppercase tracking-wider mb-0.5">
+                <div className="text-xs text-rose-400 font-extrabold uppercase tracking-wider mb-1">
                   Онлайн со смартфонов • По коду
                 </div>
                 <div className="text-xl font-black text-white">Слова-Мины (Trapwords)</div>
-                <div className="text-xs sm:text-sm text-slate-400 mt-0.5">
+                <div className="text-xs sm:text-sm text-slate-400 mt-1">
                   Тайные ловушки, блеф и кнопка «БАХ!»
                 </div>
               </div>

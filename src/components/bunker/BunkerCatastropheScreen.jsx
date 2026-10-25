@@ -29,11 +29,11 @@ export default function BunkerCatastropheScreen({ roomData, myPlayer, isHost }) 
         </span>
       </header>
 
-      <main className="p-4 space-y-4 pb-44">
+      <main className="max-w-lg w-full mx-auto px-5 sm:px-6 py-6 pb-48">
         {/* Карточка катастрофы */}
-        <div className="bg-gradient-to-br from-rose-950/80 via-slate-900 to-slate-900 border-2 border-rose-600/50 rounded-3xl p-6 shadow-2xl space-y-4">
-          <div className="text-center py-1">
-            <div className="text-6xl mb-2">{disaster.icon || '☢️'}</div>
+        <section className="mobile-card border-rose-600/50">
+          <div className="text-center py-2 mb-4">
+            <div className="text-6xl mb-3">{disaster.icon || '☢️'}</div>
             <div className="text-xs font-black text-rose-400 uppercase tracking-widest mb-1.5">
               Апокалипсис наступил
             </div>
@@ -42,30 +42,32 @@ export default function BunkerCatastropheScreen({ roomData, myPlayer, isHost }) 
             </h1>
           </div>
 
-          <p className="text-sm sm:text-base text-slate-200 leading-relaxed text-center font-medium">
+          <p className="text-sm sm:text-base text-slate-200 leading-relaxed text-center font-medium mb-6">
             {disaster.description}
           </p>
 
-          <div className="pt-3 border-t border-rose-500/20 grid grid-cols-2 gap-3">
-            <div className="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800 text-center">
+          <div className="pt-5 border-t border-rose-500/20 grid grid-cols-2 gap-3.5">
+            <div className="bg-slate-950/80 p-4 rounded-2xl border border-slate-700/80 text-center">
               <span className="text-slate-400 block text-xs uppercase font-extrabold">Срок изоляции</span>
-              <span className="text-xl font-black text-amber-400 font-mono mt-0.5 block">{disaster.durationYears || 5} лет</span>
+              <span className="text-xl font-black text-amber-400 font-mono mt-1 block">{disaster.durationYears || 5} лет</span>
             </div>
-            <div className="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800 text-center">
+            <div className="bg-slate-950/80 p-4 rounded-2xl border border-slate-700/80 text-center">
               <span className="text-slate-400 block text-xs uppercase font-extrabold">Мест внутри</span>
-              <span className="text-xl font-black text-emerald-400 font-mono mt-0.5 block">{capacity} из {players.length}</span>
+              <span className="text-xl font-black text-emerald-400 font-mono mt-1 block">{capacity} из {players.length}</span>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Первое открытое помещение бункера */}
         {firstRoom.title && (
-          <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-2.5">
-            <div className="flex items-center gap-2.5">
-              <Shield className="w-5 h-5 text-sky-400" />
-              <h3 className="font-black text-base text-sky-300">
-                Разведка убежища: {firstRoom.title}
-              </h3>
+          <section className="mobile-card border-sky-500/40">
+            <div className="mobile-card-header">
+              <div className="flex items-center gap-2.5">
+                <Shield className="w-5 h-5 text-sky-400" />
+                <h3 className="font-black text-base sm:text-lg text-sky-300">
+                  Разведка убежища: {firstRoom.title}
+                </h3>
+              </div>
             </div>
             <p className="text-sm text-slate-300 leading-relaxed">
               {firstRoom.desc}
@@ -74,12 +76,12 @@ export default function BunkerCatastropheScreen({ roomData, myPlayer, isHost }) 
         )}
 
         {/* Правило отбора */}
-        <div className="p-5 bg-amber-500/10 border border-amber-500/20 rounded-3xl text-sm text-amber-300/90 leading-relaxed text-center space-y-1.5 font-medium shadow-md">
+        <section className="mobile-card border-amber-500/30 text-center space-y-2">
           <p className="font-black text-base text-amber-400">Цель каждого выжившего:</p>
-          <p className="text-slate-300 text-xs sm:text-sm">
+          <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
             По очереди открывайте свои карты, доказывайте полезность профессии, здоровья и багажа. На тайном голосовании группа будет выгонять наименее нужных людей!
           </p>
-        </div>
+        </section>
       </main>
 
       {/* Фиксированная кнопка внизу с защитой от вырезов */}

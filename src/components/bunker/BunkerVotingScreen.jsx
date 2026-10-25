@@ -48,12 +48,12 @@ export default function BunkerVotingScreen({ roomData, myPlayer, isHost }) {
         </span>
       </header>
 
-      <main className="p-4 space-y-4 pb-44">
-        <div className="text-center py-1">
+      <main className="max-w-lg w-full mx-auto px-5 sm:px-6 py-6 pb-48">
+        <div className="text-center pt-2 pb-6">
           <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
             {votesRevealed ? 'Решение бункера принято' : 'Кого оставить снаружи?'}
           </h1>
-          <p className="text-sm text-slate-400 max-w-xs mx-auto mt-1 leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-400 max-w-sm mx-auto mt-2 leading-relaxed">
             {votesRevealed
               ? 'Большинство решило судьбу одного из выживших.'
               : 'Выберите человека, чьи качества наименее полезны для выживания группы.'}
@@ -64,12 +64,12 @@ export default function BunkerVotingScreen({ roomData, myPlayer, isHost }) {
         {/* СИТУАЦИЯ 1: ИДЕТ ГОЛОСОВАНИЕ                            */}
         {/* ======================================================== */}
         {!votesRevealed && (
-          <div className="space-y-3">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">
-              Кандидаты на изгнание ({candidates.length}):
+          <div>
+            <div className="mobile-label">
+              <span>Кандидаты на изгнание ({candidates.length}):</span>
             </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-3.5">
               {candidates.map(candidate => {
                 const isSelected = (myVote || selectedCandidate) === candidate.id;
 

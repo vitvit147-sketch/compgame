@@ -12,10 +12,7 @@ import {
   Sparkles,
   HelpCircle,
   AlertTriangle,
-  Flame,
-  Award,
-  ChevronRight,
-  Info
+  Lightbulb
 } from 'lucide-react';
 
 const BUNKER_AVATARS = ['🦺', '👨‍🔬', '👩‍🚀', '🥽', '🛠️', '🧬', '🔬', '📻'];
@@ -89,50 +86,50 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
         badge="Онлайн"
       />
 
-      {/* Основной скроллируемый контент: широкий, просторный, с большими отступами между карточками (space-y-6 sm:space-y-8) */}
-      <main className="max-w-lg w-full mx-auto px-5 sm:px-6 py-6 space-y-6 sm:space-y-7 pb-28 overflow-y-auto">
+      {/* Основной контент: с четкими изолированными карточками и большими отступами */}
+      <main className="max-w-lg w-full mx-auto px-5 sm:px-6 py-6 pb-32 overflow-y-auto">
         {/* Заголовок и интро */}
-        <div className="text-center pt-1 pb-2">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-black uppercase tracking-widest mb-3">
+        <div className="text-center pt-2 pb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-black uppercase tracking-widest mb-3 shadow-sm">
             <Radio className="w-4 h-4 text-amber-400 animate-pulse" />
             <span>Экстренное оповещение</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight uppercase">
             Бункер 3.0
           </h1>
-          <p className="text-sm sm:text-base text-slate-400 mt-2 max-w-sm mx-auto leading-relaxed font-medium">
+          <p className="text-sm sm:text-base text-slate-400 mt-2.5 max-w-sm mx-auto leading-relaxed font-medium">
             Командная онлайн-игра на выживание. Докажите свою полезность и займите место в убежище!
           </p>
         </div>
 
         {/* Ошибка если была */}
         {errorMessage && (
-          <div className="p-5 bg-rose-500/20 border-2 border-rose-500/40 rounded-3xl text-rose-200 text-sm font-bold text-center flex items-center justify-center gap-3 shadow-lg">
+          <div className="mb-7 p-5 bg-rose-500/20 border-2 border-rose-500/40 rounded-3xl text-rose-200 text-sm font-bold text-center flex items-center justify-center gap-3 shadow-lg">
             <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
 
         {/* ================================================================= */}
-        {/* КАРТОЧКА 1: ПРОФИЛЬ ВЫЖИВШЕГО (Аватар + Широкое поле ввода)       */}
+        {/* КАРТОЧКА 1: ПРОФИЛЬ ВЫЖИВШЕГО (Аватар + Поле ввода)               */}
         {/* ================================================================= */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-5">
-          <div className="flex items-center justify-between">
+        <section className="mobile-card">
+          <div className="mobile-card-header">
             <div className="flex items-center gap-3">
               <span className="text-2xl">{selectedAvatar}</span>
-              <h2 className="text-lg font-black text-white">Ваш профиль выжившего</h2>
+              <h2 className="text-lg sm:text-xl font-black text-white">Ваш профиль выжившего</h2>
             </div>
-            <span className="text-xs font-bold text-slate-400 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+            <span className="text-xs font-extrabold text-slate-300 bg-slate-800/90 px-3 py-1 rounded-full border border-slate-700">
               Шаг 1
             </span>
           </div>
 
-          {/* Выбор аватара */}
-          <div>
-            <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-2.5">
-              Выберите значок выжившего:
+          {/* 1.1 Выбор аватара */}
+          <div className="mb-6">
+            <label className="mobile-label">
+              <span>Выберите значок выжившего:</span>
             </label>
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2.5">
+            <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
               {BUNKER_AVATARS.map((emoji) => (
                 <button
                   key={emoji}
@@ -141,10 +138,10 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
                     sounds.playTap();
                     setSelectedAvatar(emoji);
                   }}
-                  className={`min-h-[50px] py-2 rounded-2xl text-2xl flex items-center justify-center border transition-all active:scale-95 touch-manipulation ${
+                  className={`min-h-[54px] py-2.5 rounded-2xl text-2xl flex items-center justify-center border transition-all active:scale-95 touch-manipulation ${
                     selectedAvatar === emoji
                       ? 'bg-amber-500/25 border-amber-400 shadow-md ring-2 ring-amber-400/40 scale-105'
-                      : 'bg-slate-950/70 border-slate-800 hover:bg-slate-800'
+                      : 'bg-slate-950/80 border-slate-700/60 hover:bg-slate-800'
                   }`}
                 >
                   {emoji}
@@ -153,10 +150,10 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
             </div>
           </div>
 
-          {/* Большое широкое поле ввода имени */}
+          {/* 1.2 Большое широкое поле ввода имени */}
           <div>
-            <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-2.5">
-              Ваш позывной или реальное имя:
+            <label className="mobile-label">
+              <span>Ваш позывной или реальное имя:</span>
             </label>
             <input
               type="text"
@@ -164,7 +161,7 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
               onChange={(e) => setPlayerName(e.target.value)}
               placeholder="Например: Сталкер, Док, Лиза"
               maxLength={20}
-              className="w-full px-5 py-4 sm:py-5 bg-slate-950 border-2 border-slate-700/80 focus:border-amber-400 focus:ring-4 focus:ring-amber-400/20 rounded-2xl text-white placeholder-slate-600 text-lg sm:text-xl font-bold transition-all outline-none"
+              className="w-full px-5 py-4 sm:py-4.5 bg-slate-950 border-2 border-slate-700/80 focus:border-amber-400 focus:ring-4 focus:ring-amber-400/20 rounded-2xl text-white placeholder-slate-600 text-lg sm:text-xl font-bold transition-all outline-none"
             />
           </div>
         </section>
@@ -172,9 +169,9 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
         {/* ================================================================= */}
         {/* КАРТОЧКА 2: СОЗДАТЬ СТОЛ (ХОСТ)                                    */}
         {/* ================================================================= */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-5">
-          <div className="flex items-center justify-between">
-            <div className="text-lg font-black text-white flex items-center gap-3">
+        <section className="mobile-card">
+          <div className="mobile-card-header">
+            <div className="text-lg sm:text-xl font-black text-white flex items-center gap-3">
               <Shield className="w-6 h-6 text-amber-400" />
               <span>Создать новое убежище</span>
             </div>
@@ -183,14 +180,14 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
             </span>
           </div>
 
-          <p className="text-sm text-slate-300 leading-relaxed font-medium">
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-medium mb-6">
             Вы станете организатором игры. После создания вы получите 4-значный код комнаты и QR-код для подключения друзей со своих смартфонов.
           </p>
 
           {/* Настройка таймера для хоста */}
-          <div className="pt-1">
-            <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2.5">
-              Время на речь каждого игрока:
+          <div className="mb-7">
+            <label className="mobile-label">
+              <span>Время на речь каждого игрока:</span>
             </label>
             <div className="grid grid-cols-3 gap-3">
               {[
@@ -205,10 +202,10 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
                     sounds.playTap();
                     setSpeechTimerPreset(item.val);
                   }}
-                  className={`min-h-[54px] py-3 px-2 rounded-2xl text-center border transition-all active:scale-95 touch-manipulation ${
+                  className={`min-h-[58px] py-3.5 px-2 rounded-2xl text-center border transition-all active:scale-95 touch-manipulation ${
                     speechTimerPreset === item.val
-                      ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md ring-1 ring-amber-400/40'
-                      : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:bg-slate-800'
+                      ? 'bg-amber-500/25 border-amber-400 text-amber-300 shadow-md ring-1 ring-amber-400/40'
+                      : 'bg-slate-950/80 border-slate-700/60 text-slate-400 hover:bg-slate-800'
                   }`}
                 >
                   <div className="text-base font-black">{item.label}</div>
@@ -218,6 +215,7 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
             </div>
           </div>
 
+          {/* Кнопка создания */}
           <button
             type="button"
             onClick={handleCreateRoom}
@@ -243,9 +241,9 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
         {/* ================================================================= */}
         {/* КАРТОЧКА 3: ВОЙТИ ПО КОДУ (ВЫЖИВШИЙ)                              */}
         {/* ================================================================= */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-5">
-          <div className="flex items-center justify-between">
-            <div className="text-lg font-black text-white flex items-center gap-3">
+        <section className="mobile-card">
+          <div className="mobile-card-header">
+            <div className="text-lg sm:text-xl font-black text-white flex items-center gap-3">
               <Users className="w-6 h-6 text-sky-400" />
               <span>Войти в убежище по коду</span>
             </div>
@@ -254,14 +252,14 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
             </span>
           </div>
 
-          <p className="text-sm text-slate-300 leading-relaxed font-medium">
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-medium mb-6">
             Если хост уже создал комнату, введите 4-значный номер убежища с его экрана:
           </p>
 
-          <form onSubmit={handleJoinRoom} className="space-y-4 pt-1">
-            <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2.5">
-                4-значный код комнаты:
+          <form onSubmit={handleJoinRoom}>
+            <div className="mb-6">
+              <label className="mobile-label">
+                <span>4-значный код комнаты:</span>
               </label>
               <input
                 type="text"
@@ -299,15 +297,17 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
         {/* ================================================================= */}
         {/* КАРТОЧКА 4: ПРАВИЛА И МЕХАНИКА ИГРЫ «БУНКЕР»                      */}
         {/* ================================================================= */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-4">
-          <div className="flex items-center gap-3">
-            <HelpCircle className="w-6 h-6 text-amber-400" />
-            <h2 className="text-lg font-black text-white">Как устроена игра «Бункер 3.0»</h2>
+        <section className="mobile-card">
+          <div className="mobile-card-header">
+            <div className="flex items-center gap-3">
+              <HelpCircle className="w-6 h-6 text-amber-400" />
+              <h2 className="text-lg sm:text-xl font-black text-white">Как устроена игра «Бункер 3.0»</h2>
+            </div>
           </div>
 
-          <div className="space-y-3 pt-1">
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
-              <div className="font-extrabold text-sm sm:text-base text-amber-300 flex items-center gap-2">
+          <div className="space-y-4">
+            <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-700/60 space-y-2">
+              <div className="font-extrabold text-base text-amber-300 flex items-center gap-2">
                 <span>☢️ 1. Катастрофа и вместимость</span>
               </div>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
@@ -315,8 +315,8 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
-              <div className="font-extrabold text-sm sm:text-base text-sky-300 flex items-center gap-2">
+            <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-700/60 space-y-2">
+              <div className="font-extrabold text-base text-sky-300 flex items-center gap-2">
                 <span>🃏 2. Семь скрытых характеристик</span>
               </div>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
@@ -324,8 +324,8 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
-              <div className="font-extrabold text-sm sm:text-base text-rose-300 flex items-center gap-2">
+            <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-700/60 space-y-2">
+              <div className="font-extrabold text-base text-rose-300 flex items-center gap-2">
                 <span>🗳️ 3. Голосование за изгнание</span>
               </div>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
@@ -333,8 +333,8 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1">
-              <div className="font-extrabold text-sm sm:text-base text-emerald-300 flex items-center gap-2">
+            <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-700/60 space-y-2">
+              <div className="font-extrabold text-base text-emerald-300 flex items-center gap-2">
                 <span>🏆 4. Финал и возрождение</span>
               </div>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
@@ -347,19 +347,21 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
         {/* ================================================================= */}
         {/* КАРТОЧКА 5: СОВЕТЫ ДЛЯ КОМПАНИИ                                    */}
         {/* ================================================================= */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-3">
-          <div className="flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-purple-400" />
-            <h2 className="text-base font-black text-white">Советы для яркой партии</h2>
+        <section className="mobile-card">
+          <div className="mobile-card-header">
+            <div className="flex items-center gap-3">
+              <Lightbulb className="w-6 h-6 text-purple-400" />
+              <h2 className="text-lg font-black text-white">Советы для яркой партии</h2>
+            </div>
           </div>
-          <ul className="text-xs sm:text-sm text-slate-300 space-y-2 leading-relaxed font-medium list-disc list-inside">
+          <ul className="text-xs sm:text-sm text-slate-300 space-y-3 leading-relaxed font-medium list-disc list-inside">
             <li>Не бойтесь плохих карт — даже болезнь можно повернуть как повод спасти уникальный научный опыт.</li>
             <li>Приберегите спец-карты до критических моментов голосования.</li>
             <li>Обсуждайте, какие профессии действительно нужны бункеру при текущей катастрофе.</li>
           </ul>
         </section>
 
-        <footer className="text-center pt-2 pb-4 text-xs text-slate-500 font-medium">
+        <footer className="text-center pt-2 pb-6 text-xs text-slate-500 font-medium">
           Для 3–16 человек • Синхронизация карт и голосования со смартфонов в реальном времени
         </footer>
       </main>

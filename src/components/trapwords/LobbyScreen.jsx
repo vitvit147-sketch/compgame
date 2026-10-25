@@ -110,41 +110,41 @@ export default function LobbyScreen({ roomData, myPlayer, isHost, onLeaveRoom })
         rightAction={headerActions}
       />
 
-      <main className="px-5 sm:px-6 py-6 space-y-6 sm:space-y-7 pb-44">
+      <main className="px-5 sm:px-6 py-6 pb-44">
         {/* Карточка стола */}
-        <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
+        <section className="mobile-card">
+          <div className="mobile-card-header">
+            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
               Комната ожидания
             </span>
-            <span className="text-xs font-extrabold text-amber-400 uppercase tracking-wider">
+            <span className="text-xs font-black text-amber-400 uppercase tracking-wider bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
               {players.length} игроков за столом
             </span>
           </div>
 
-          <div className="flex items-center justify-between bg-slate-950/80 border border-slate-800 p-4 rounded-2xl">
+          <div className="flex items-center justify-between bg-slate-950/80 border border-slate-700/80 p-5 rounded-2xl">
             <div>
-              <div className="text-xs text-slate-400 font-bold">Номер стола:</div>
-              <div className="text-4xl font-black font-mono tracking-widest text-amber-400">
+              <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">Номер стола:</div>
+              <div className="text-4xl sm:text-5xl font-black font-mono tracking-widest text-amber-400 mt-1">
                 {roomCode}
               </div>
             </div>
             <button
               type="button"
               onClick={() => setShowQR(true)}
-              className="px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all"
+              className="px-4 py-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-black text-sm flex items-center gap-2 active:scale-95 transition-all shadow-md"
             >
-              <QrCode className="w-4 h-4" />
+              <QrCode className="w-5 h-5" />
               <span>QR-код</span>
             </button>
           </div>
-        </div>
+        </section>
 
         {/* Панель настроек хоста (выдвижная) */}
         {isHost && showSettings && (
-          <section className="bg-slate-900/90 border border-amber-500/30 rounded-3xl p-5 shadow-xl space-y-4 animate-fadeIn">
-            <div className="flex items-center justify-between text-sm font-black text-amber-400">
-              <span>Параметры партии</span>
+          <section className="mobile-card border-amber-500/40 animate-fadeIn">
+            <div className="mobile-card-header">
+              <span className="text-base font-black text-amber-400">Параметры партии</span>
               <span className="text-xs text-slate-400 font-normal">для ведущего</span>
             </div>
 
@@ -199,20 +199,20 @@ export default function LobbyScreen({ roomData, myPlayer, isHost, onLeaveRoom })
         )}
 
         {/* Команды: Красные и Синие */}
-        <div className="space-y-3.5">
+        <div className="space-y-6">
           {/* Красная команда */}
-          <div className="bg-slate-900/90 border-2 border-rose-600/40 rounded-3xl p-5 shadow-xl space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+          <div className="mobile-card border-rose-500/50">
+            <div className="mobile-card-header">
+              <div className="flex items-center gap-2.5">
                 <span className="w-3.5 h-3.5 rounded-full bg-rose-500 shadow-md shadow-rose-500/50"></span>
-                <span className="font-black text-base text-rose-400">
+                <span className="font-black text-base sm:text-lg text-rose-400">
                   Красная команда ({redPlayers.length})
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => handleJoinTeam('red')}
-                className="px-4 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 active:scale-95 text-rose-300 border border-rose-500/40 text-xs font-black transition-all touch-manipulation"
+                className="px-4 py-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 active:scale-95 text-rose-300 border border-rose-500/40 text-xs font-black transition-all touch-manipulation shadow"
               >
                 Вступить
               </button>
@@ -252,18 +252,18 @@ export default function LobbyScreen({ roomData, myPlayer, isHost, onLeaveRoom })
           </div>
 
           {/* Синяя команда */}
-          <div className="bg-slate-900/90 border-2 border-sky-600/40 rounded-3xl p-5 shadow-xl space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+          <div className="mobile-card border-sky-500/50">
+            <div className="mobile-card-header">
+              <div className="flex items-center gap-2.5">
                 <span className="w-3.5 h-3.5 rounded-full bg-sky-500 shadow-md shadow-sky-500/50"></span>
-                <span className="font-black text-base text-sky-400">
+                <span className="font-black text-base sm:text-lg text-sky-400">
                   Синяя команда ({bluePlayers.length})
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => handleJoinTeam('blue')}
-                className="px-4 py-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 active:scale-95 text-sky-300 border border-sky-500/40 text-xs font-black transition-all touch-manipulation"
+                className="px-4 py-2.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 active:scale-95 text-sky-300 border border-sky-500/40 text-xs font-black transition-all touch-manipulation shadow"
               >
                 Вступить
               </button>
