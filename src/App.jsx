@@ -54,13 +54,47 @@ import StickersApp from './components/stickers/StickersApp';
 import './App.css';
 
 export function App() {
-  // 'menu' (Хаб игр) | 'spy' (Шпион) | 'party' (Слова-мины) | 'mafia' (Мафия) | 'bunker' (Бункер онлайн) | 'deception' (Криминалист)
-  const [appMode, setAppMode] = useState('menu');
+  // 'menu' (Хаб игр) | 'spy' (Шпион) | 'party' (Слова-мины) | 'mafia' (Мафия) | 'bunker' (Бункер онлайн) | 'deception' (Криминалист) | 'stickers' (Стикеры)
+  const [appMode, setAppMode] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('bunker_room')) return 'bunker';
+      if (params.get('crime_room')) return 'deception';
+      if (params.get('mafia_room')) return 'mafia';
+      if (params.get('stickers_room')) return 'stickers';
+    } catch (e) {}
+    return 'menu';
+  });
+
+  const [mafiaSubMode, setMafiaSubMode] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('mafia_room')) return 'online';
+    } catch (e) {}
+    return null;
+  });
+
   const [roomData, setRoomData] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [showMafiaExitModal, setShowMafiaExitModal] = useState(false);
   const [mafiaExitAction, setMafiaExitAction] = useState('menu'); // 'menu' | 'reset'
-  const [mafiaSubMode, setMafiaSubMode] = useState(null); // null (выбор) | 'offline' | 'online'
+
+  // -------------------------------------------------------------
+  // СОСТОЯНИЯ ОФФЛАЙН/ОНЛАЙН МАФИИ ДЛЯ ПУЛЬТА ВЕДУЩЕГО
+  // -------------------------------------------------------------
+  const [gameState, setGameState] = useState({ phase: 'setup', round: 1 });
+  const [players, setPlayers] = useState([]);
+  const [nightResult, setNightResult] = useState(null);
+  const [lastNightActions, setLastNightActions] = useState({});
+  const [gameLogs, setGameLogs] = useState([]);
+  const [victoryInfo, setVictoryInfo] = useState(null);
+  const [gameSettings, setGameSettings] = useState({
+    noKillFirstNight: true,
+    noKillDay1: true
+  });
+  const [isRulesOpen, setIsRulesOpen] = useState(false);
+  const [isLogOpen, setIsLogOpen] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   // -------------------------------------------------------------
   // ЛОГИКА СОКЕТОВ ДЛЯ МАФИИ ОНЛАЙН
@@ -85,20 +119,6 @@ export function App() {
   // -------------------------------------------------------------
   const [bunkerRoomData, setBunkerRoomData] = useState(null);
   const [bunkerErrorMessage, setBunkerErrorMessage] = useState('');
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('bunker_room')) {
-      setAppMode('bunker');
-    } else if (params.get('crime_room')) {
-      setAppMode('deception');
-    } else if (params.get('mafia_room')) {
-      setAppMode('mafia');
-      setMafiaSubMode('online');
-    } else if (params.get('stickers_room')) {
-      setAppMode('stickers');
-    }
-  }, []);
 
   useEffect(() => {
     const onBunkerRoomCreated = ({ roomCode }) => {
@@ -324,13 +344,16 @@ export function App() {
       // Если я хост и игра только что запустилась из лобби — синхронизируем локальный пульт ведущего
       if (data?.isHost && data?.game?.status === 'PLAYING' && data.players) {
         const gamePlayers = data.players.filter(p => !p.isHost);
-        if (gamePlayers.length > 0 && players.length === 0) {
-          setPlayers(gamePlayers);
-          setGameState(prev => ({
-            phase: data.game.phase || 'night',
-            round: data.game.round || 1
-          }));
-        }
+        setPlayers(prev => {
+          if (gamePlayers.length > 0 && prev.length === 0) {
+            setGameState({
+              phase: data.game.phase || 'night',
+              round: data.game.round || 1
+            });
+            return gamePlayers;
+          }
+          return prev;
+        });
       }
     };
 
@@ -367,7 +390,7 @@ export function App() {
       mafiaOnlineSocket.off('error_message', onMafiaError);
       mafiaOnlineSocket.off('reconnect_failed', onMafiaReconnectFailed);
     };
-  }, [players.length]);
+  }, []);
 
   const handleLeaveMafiaOnlineRoom = (isHost = false) => {
     mafiaOnlineSocket.leaveRoom(isHost);
@@ -448,23 +471,6 @@ export function App() {
       }
     } catch (e) {}
   };
-
-  // -------------------------------------------------------------
-  // ЛОГИКА ОФФЛАЙН МАФИИ ДЛЯ ВЕДУЩЕГО
-  // -------------------------------------------------------------
-  const [gameState, setGameState] = useState({ phase: 'setup', round: 1 });
-  const [players, setPlayers] = useState([]);
-  const [nightResult, setNightResult] = useState(null);
-  const [lastNightActions, setLastNightActions] = useState({});
-  const [gameLogs, setGameLogs] = useState([]);
-  const [victoryInfo, setVictoryInfo] = useState(null);
-  const [gameSettings, setGameSettings] = useState({
-    noKillFirstNight: true,
-    noKillDay1: true
-  });
-  const [isRulesOpen, setIsRulesOpen] = useState(false);
-  const [isLogOpen, setIsLogOpen] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
 
   const addLog = (phase, text) => {
     setGameLogs(prev => [{ phase, text, time: new Date().toLocaleTimeString() }, ...prev]);
