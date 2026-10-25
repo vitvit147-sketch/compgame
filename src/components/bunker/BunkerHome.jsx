@@ -7,6 +7,8 @@ import { Shield, Users, Play, ArrowRight, ArrowLeft, Radio } from 'lucide-react'
 export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage }) {
   const [playerName, setPlayerName] = useState(getSavedBunkerName() || '');
   const [roomCode, setRoomCode] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
 
   // Автозаполнение из URL ?room=XXXX
   useEffect(() => {
@@ -17,7 +19,16 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
     }
   }, []);
 
+  // Сброс загрузки при ошибке
+  useEffect(() => {
+    if (errorMessage) {
+      setIsCreating(false);
+      setIsJoining(false);
+    }
+  }, [errorMessage]);
+
   const handleCreateRoom = () => {
+    setIsCreating(true);
     const name = playerName.trim() || `Выживший ${Math.floor(Math.random() * 900) + 100}`;
     saveBunkerName(name);
     sounds.playTap();
@@ -30,6 +41,7 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
       setErrorMessage('Введите номер стола (например 4819)');
       return;
     }
+    setIsJoining(true);
     const name = playerName.trim() || `Выживший ${Math.floor(Math.random() * 900) + 100}`;
     saveBunkerName(name);
     sounds.playTap();
@@ -102,10 +114,20 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
         </p>
         <button
           onClick={handleCreateRoom}
-          className="w-full py-4 px-4 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 shadow-xl shadow-amber-950/50 active:scale-98 transition-all"
+          disabled={isCreating}
+          className={`w-full py-4 px-4 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 shadow-xl shadow-amber-950/50 active:scale-98 transition-all ${isCreating ? 'opacity-70 cursor-wait' : ''}`}
         >
-          <Play className="w-5 h-5 fill-current" />
-          <span>Создать бункер 🏢</span>
+          {isCreating ? (
+            <>
+              <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+              <span>Создание убежища...</span>
+            </>
+          ) : (
+            <>
+              <Play className="w-5 h-5 fill-current" />
+              <span>Создать бункер 🏢</span>
+            </>
+          )}
         </button>
       </section>
 
@@ -139,10 +161,20 @@ export default function BunkerHome({ onBackToHub, errorMessage, setErrorMessage 
 
           <button
             type="submit"
-            className="w-full py-3.5 px-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-750 text-white border border-slate-700 active:scale-98 transition-all shadow"
+            disabled={isJoining}
+            className={`w-full py-3.5 px-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-750 text-white border border-slate-700 active:scale-98 transition-all shadow ${isJoining ? 'opacity-70 cursor-wait' : ''}`}
           >
-            <span>Присоединиться к группе</span>
-            <ArrowRight className="w-4 h-4" />
+            {isJoining ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Подключение...</span>
+              </>
+            ) : (
+              <>
+                <span>Присоединиться к группе</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </form>
       </section>

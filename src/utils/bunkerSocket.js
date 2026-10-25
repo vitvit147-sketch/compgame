@@ -79,12 +79,16 @@ class BunkerSocketAdapter {
     this.currentRoomCode = code;
     this.roomRef = ref(database, `bunker_rooms/${code}`);
 
+    let hadInitialData = false;
     this.unsubscribeRoom = onValue(this.roomRef, (snapshot) => {
       const roomRaw = snapshot.val();
       if (!roomRaw) {
-        this._trigger('reconnect_failed', { message: 'Комната закрыта или удалена' });
+        if (hadInitialData) {
+          this._trigger('reconnect_failed', { message: 'Комната закрыта или удалена' });
+        }
         return;
       }
+      hadInitialData = true;
       this._handleRoomUpdate(roomRaw);
     });
   }
@@ -169,9 +173,15 @@ class BunkerSocketAdapter {
         };
 
         const targetRef = ref(database, `bunker_rooms/${code}`);
-        await set(targetRef, newRoom);
+        // Мгновенный оптимистичный переход в UI (0 мс задержки)
+        this.currentRoomCode = code;
+        this.roomRef = targetRef;
+        this._handleRoomUpdate(newRoom);
         this._startListening(code);
         this._trigger('room_created', { roomCode: code });
+        set(targetRef, newRoom).catch(err => {
+          console.error('Firebase room write error:', err);
+        });
         break;
       }
 
@@ -203,9 +213,18 @@ class BunkerSocketAdapter {
           votedFor: null
         };
 
-        await update(ref(database, `bunker_rooms/${code}/players/${bunkerPlayerId}`), playerEntry);
+        if (!roomVal.players) roomVal.players = {};
+        roomVal.players[bunkerPlayerId] = playerEntry;
+
+        // Мгновенный переход в комнату для игрока
+        this._handleRoomUpdate(roomVal);
         this._startListening(code);
         this._trigger('room_joined', { roomCode: code });
+
+        // Сохраняем игрока в Firebase в фоне
+        update(ref(database, `bunker_rooms/${code}/players/${bunkerPlayerId}`), playerEntry).catch(err => {
+          console.error('Firebase join error:', err);
+        });
         break;
       }
 

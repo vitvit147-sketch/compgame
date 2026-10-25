@@ -7,6 +7,7 @@ import { Sparkles, Users, Bomb, ArrowRight, Play, ArrowLeft } from 'lucide-react
 export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMessage }) {
   const [playerName, setPlayerName] = useState(getSavedPlayerName() || '');
   const [roomCode, setRoomCode] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
 
   // Автозаполнение номера комнаты из URL (например ?room=4912)
@@ -19,7 +20,16 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
     }
   }, []);
 
+  // Сброс загрузки при ошибке
+  useEffect(() => {
+    if (errorMessage) {
+      setIsCreating(false);
+      setIsJoining(false);
+    }
+  }, [errorMessage]);
+
   const handleCreateRoom = () => {
+    setIsCreating(true);
     const name = playerName.trim() || `Игрок ${Math.floor(Math.random() * 900) + 100}`;
     savePlayerName(name);
     sounds.playTap();
@@ -32,6 +42,7 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
       setErrorMessage('Введите номер стола (например 4819)');
       return;
     }
+    setIsJoining(true);
     const name = playerName.trim() || `Игрок ${Math.floor(Math.random() * 900) + 100}`;
     savePlayerName(name);
     sounds.playTap();
@@ -106,10 +117,20 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
         </p>
         <button
           onClick={handleCreateRoom}
-          className="w-full py-4 px-4 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-white shadow-xl shadow-rose-950/50 active:scale-98 transition-all"
+          disabled={isCreating}
+          className={`w-full py-4 px-4 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-white shadow-xl shadow-rose-950/50 active:scale-98 transition-all ${isCreating ? 'opacity-70 cursor-wait' : ''}`}
         >
-          <Play className="w-5 h-5 fill-current" />
-          <span>Создать новый стол 🎲</span>
+          {isCreating ? (
+            <>
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span>Создание стола...</span>
+            </>
+          ) : (
+            <>
+              <Play className="w-5 h-5 fill-current" />
+              <span>Создать новый стол 🎲</span>
+            </>
+          )}
         </button>
       </section>
 
@@ -143,10 +164,20 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
 
           <button
             type="submit"
-            className="w-full py-3.5 px-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-750 text-white border border-slate-700 active:scale-98 transition-all shadow"
+            disabled={isJoining}
+            className={`w-full py-3.5 px-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-750 text-white border border-slate-700 active:scale-98 transition-all shadow ${isJoining ? 'opacity-70 cursor-wait' : ''}`}
           >
-            <span>Войти за стол</span>
-            <ArrowRight className="w-4 h-4" />
+            {isJoining ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Подключение...</span>
+              </>
+            ) : (
+              <>
+                <span>Войти за стол</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </form>
       </section>

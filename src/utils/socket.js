@@ -81,13 +81,16 @@ class FirebaseSocketAdapter {
     this.currentRoomCode = code;
     this.roomRef = ref(database, `rooms/${code}`);
 
+    let hadInitialData = false;
     this.unsubscribeRoom = onValue(this.roomRef, (snapshot) => {
       const roomRaw = snapshot.val();
       if (!roomRaw) {
-        this._trigger('reconnect_failed', { message: 'Комната закрыта или удалена' });
+        if (hadInitialData) {
+          this._trigger('reconnect_failed', { message: 'Комната закрыта или удалена' });
+        }
         return;
       }
-
+      hadInitialData = true;
       this._handleRoomUpdate(roomRaw);
     });
 
@@ -294,9 +297,15 @@ class FirebaseSocketAdapter {
         }
       };
 
-      await set(ref(database, `rooms/${code}`), initialRoom);
+      // Оптимистичный мгновенный переход
+      this.currentRoomCode = code;
+      this.roomRef = ref(database, `rooms/${code}`);
+      this._handleRoomUpdate(initialRoom);
       this._startListeningToRoom(code);
       this._trigger('room_created', { roomCode: code, player: initialRoom.players[pId] });
+      set(ref(database, `rooms/${code}`), initialRoom).catch(err => {
+        console.error('Firebase room write error:', err);
+      });
       return;
     }
 

@@ -1,6 +1,6 @@
 // src/utils/firebase.js - Инициализация Firebase для онлайн-комнат
 import { initializeApp } from 'firebase/app';
-import { getDatabase } from 'firebase/database';
+import { getDatabase, ref, onValue } from 'firebase/database';
 
 export const firebaseConfig = {
   apiKey: "AIzaSyC2-xJe67RT2_hlpu82l1apkCyLtNUgxDM",
@@ -15,3 +15,11 @@ export const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 export const database = getDatabase(app);
+
+// Предварительный прогрев WebSocket-соединения при загрузке приложения.
+// Это устраняет задержку первого клика (когда TLS/WebSocket рукопожатие идет в Европу).
+try {
+  onValue(ref(database, '.info/connected'), () => {}, { onlyOnce: false });
+} catch (e) {
+  console.warn('Firebase pre-warm connection:', e);
+}
