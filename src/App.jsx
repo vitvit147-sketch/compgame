@@ -19,14 +19,89 @@ import { RulesModal } from './components/RulesModal';
 import { GameLogModal } from './components/GameLogModal';
 import { VictoryModal } from './components/VictoryModal';
 import { resolveNight, checkWinCondition } from './utils/gameEngine';
-import { ArrowLeft, Sparkles, Shield, Bomb } from 'lucide-react';
+import { ArrowLeft, Sparkles, Shield, Bomb, Radio } from 'lucide-react';
+
+// Компоненты Бункера онлайн
+import { bunkerSocket, bunkerPlayerId } from './utils/bunkerSocket';
+import BunkerHome from './components/bunker/BunkerHome';
+import BunkerLobby from './components/bunker/BunkerLobby';
+import BunkerCatastropheScreen from './components/bunker/BunkerCatastropheScreen';
+import BunkerGameScreen from './components/bunker/BunkerGameScreen';
+import BunkerVotingScreen from './components/bunker/BunkerVotingScreen';
+import BunkerFinaleScreen from './components/bunker/BunkerFinaleScreen';
 import './App.css';
 
 export function App() {
-  // 'menu' (Хаб игр) | 'spy' (Шпион на 1 телефоне) | 'party' (Слова-мины онлайн) | 'mafia' (Пульт ведущего)
+  // 'menu' (Хаб игр) | 'spy' (Шпион) | 'party' (Слова-мины) | 'mafia' (Пульт ведущего) | 'bunker' (Бункер онлайн)
   const [appMode, setAppMode] = useState('menu');
   const [roomData, setRoomData] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // -------------------------------------------------------------
+  // ЛОГИКА СОКЕТОВ ДЛЯ БУНКЕРА ОНЛАЙН
+  // -------------------------------------------------------------
+  const [bunkerRoomData, setBunkerRoomData] = useState(null);
+  const [bunkerErrorMessage, setBunkerErrorMessage] = useState('');
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('bunker_room')) {
+      setAppMode('bunker');
+    }
+  }, []);
+
+  useEffect(() => {
+    const onBunkerRoomCreated = ({ roomCode }) => {
+      sessionStorage.setItem('current_bunker_room_code', roomCode);
+      setBunkerErrorMessage('');
+    };
+
+    const onBunkerRoomJoined = ({ roomCode }) => {
+      sessionStorage.setItem('current_bunker_room_code', roomCode);
+      setBunkerErrorMessage('');
+    };
+
+    const onBunkerRoomUpdate = (data) => {
+      setBunkerRoomData(data);
+      if (data?.code) {
+        sessionStorage.setItem('current_bunker_room_code', data.code);
+      }
+    };
+
+    const onBunkerError = ({ message }) => {
+      setBunkerErrorMessage(message);
+    };
+
+    const onBunkerReconnectFailed = () => {
+      sessionStorage.removeItem('current_bunker_room_code');
+      setBunkerRoomData(null);
+    };
+
+    bunkerSocket.on('room_created', onBunkerRoomCreated);
+    bunkerSocket.on('room_joined', onBunkerRoomJoined);
+    bunkerSocket.on('room_update', onBunkerRoomUpdate);
+    bunkerSocket.on('error_message', onBunkerError);
+    bunkerSocket.on('reconnect_failed', onBunkerReconnectFailed);
+
+    const savedBunkerCode = sessionStorage.getItem('current_bunker_room_code');
+    if (savedBunkerCode) {
+      bunkerSocket.emit('reconnect_player', { roomCode: savedBunkerCode, playerId: bunkerPlayerId });
+    }
+
+    return () => {
+      bunkerSocket.off('room_created', onBunkerRoomCreated);
+      bunkerSocket.off('room_joined', onBunkerRoomJoined);
+      bunkerSocket.off('room_update', onBunkerRoomUpdate);
+      bunkerSocket.off('error_message', onBunkerError);
+      bunkerSocket.off('reconnect_failed', onBunkerReconnectFailed);
+    };
+  }, []);
+
+  const handleLeaveBunkerRoom = () => {
+    sessionStorage.removeItem('current_bunker_room_code');
+    setBunkerRoomData(null);
+    setBunkerErrorMessage('');
+  };
 
   // -------------------------------------------------------------
   // ЛОГИКА СОКЕТОВ ДЛЯ ОНЛАЙН СТОЛОВ («Слова-мины»)
@@ -274,6 +349,29 @@ export function App() {
             </div>
             <span className="text-xl text-slate-500 pr-1">→</span>
           </button>
+
+          {/* Игра 4: БУНКЕР ОНЛАЙН */}
+          <button
+            onClick={() => setAppMode('bunker')}
+            className="w-full p-4 rounded-3xl bg-gradient-to-br from-amber-950/80 via-slate-900 to-slate-900 border border-amber-500/40 hover:border-amber-400 text-left shadow-xl active:scale-98 transition-all flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3.5">
+              <div className="w-13 h-13 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-2xl shrink-0">
+                ☢️
+              </div>
+              <div>
+                <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                  <span>Онлайн со смартфонов</span>
+                  <span className="bg-amber-400/20 text-amber-300 px-1.5 py-0.2 rounded text-[9px] font-black">ХИТ</span>
+                </div>
+                <div className="text-lg font-black text-white">БУНКЕР (Bunker 3.0)</div>
+                <div className="text-xs text-slate-400">
+                  Карточки выживших, катастрофа и тайное голосование
+                </div>
+              </div>
+            </div>
+            <span className="text-xl text-amber-500 pr-1">→</span>
+          </button>
         </div>
 
         <footer className="text-center py-2 text-xs text-slate-500">
@@ -347,7 +445,70 @@ export function App() {
   }
 
   // =============================================================
-  // РЕЖИМ 3: МАФИЯ: ПУЛЬТ ВЕДУЩЕГО
+  // РЕЖИМ 3: БУНКЕР ОНЛАЙН
+  // =============================================================
+  if (appMode === 'bunker') {
+    if (!bunkerRoomData) {
+      return (
+        <BunkerHome
+          onBackToHub={() => setAppMode('menu')}
+          errorMessage={bunkerErrorMessage}
+          setErrorMessage={setBunkerErrorMessage}
+        />
+      );
+    }
+
+    const bunkerPhase = bunkerRoomData.game?.phase || 'LOBBY';
+
+    return (
+      <div className="relative min-h-[100dvh] bg-slate-950">
+        {bunkerPhase === 'LOBBY' && (
+          <BunkerLobby
+            roomData={bunkerRoomData}
+            myPlayer={bunkerRoomData.myPlayer}
+            isHost={bunkerRoomData.isHost}
+            onLeaveRoom={handleLeaveBunkerRoom}
+          />
+        )}
+
+        {bunkerPhase === 'CATASTROPHE' && (
+          <BunkerCatastropheScreen
+            roomData={bunkerRoomData}
+            myPlayer={bunkerRoomData.myPlayer}
+            isHost={bunkerRoomData.isHost}
+          />
+        )}
+
+        {bunkerPhase === 'ROUND_DISCUSS' && (
+          <BunkerGameScreen
+            roomData={bunkerRoomData}
+            myPlayer={bunkerRoomData.myPlayer}
+            isHost={bunkerRoomData.isHost}
+          />
+        )}
+
+        {(bunkerPhase === 'VOTING' || bunkerPhase === 'VOTE_RESULT') && (
+          <BunkerVotingScreen
+            roomData={bunkerRoomData}
+            myPlayer={bunkerRoomData.myPlayer}
+            isHost={bunkerRoomData.isHost}
+          />
+        )}
+
+        {bunkerPhase === 'FINALE' && (
+          <BunkerFinaleScreen
+            roomData={bunkerRoomData}
+            myPlayer={bunkerRoomData.myPlayer}
+            isHost={bunkerRoomData.isHost}
+            onExitToHome={handleLeaveBunkerRoom}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // =============================================================
+  // РЕЖИМ 4: МАФИЯ: ПУЛЬТ ВЕДУЩЕГО
   // =============================================================
   return (
     <div className="app-container">
