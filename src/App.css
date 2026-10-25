@@ -336,16 +336,26 @@
 .stepper-btn {
   background: #1e293b;
   color: #fff;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.15s ease;
+}
+
+.stepper-btn:active {
+  transform: scale(0.92);
 }
 
 .stepper-btn:hover {
   background: #334155;
+  border-color: #64748b;
 }
 
 .stepper-value {
@@ -484,27 +494,38 @@
 .role-btn-minus, .role-btn-plus {
   background: #1e293b;
   color: #fff;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.15s ease;
 }
 
 .role-btn-minus:disabled, .role-btn-plus:disabled {
-  opacity: 0.3;
+  opacity: 0.25;
   cursor: not-allowed;
+}
+
+.role-btn-minus:not(:disabled):active, .role-btn-plus:not(:disabled):active {
+  transform: scale(0.92);
 }
 
 .role-btn-minus:not(:disabled):hover, .role-btn-plus:not(:disabled):hover {
   background: #3b82f6;
+  border-color: #60a5fa;
 }
 
 .role-counter {
-  font-weight: 700;
-  font-size: 0.95rem;
-  min-width: 24px;
+  font-weight: 800;
+  font-size: 1.15rem;
+  min-width: 32px;
   text-align: center;
 }
 
@@ -1145,32 +1166,51 @@
 }
 
 .btn-timer-action {
-  padding: 10px 24px;
-  border-radius: 10px;
-  font-weight: 700;
+  padding: 12px 24px;
+  min-height: 48px;
+  border-radius: 14px;
+  font-weight: 800;
   font-size: 1rem;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-timer-action:active {
+  transform: scale(0.95);
 }
 
 .btn-timer-action.play {
   background: #10b981;
   color: #fff;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
 }
 
 .btn-timer-action.pause {
   background: #f59e0b;
   color: #fff;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
 }
 
 .btn-timer-sec {
   background: #1e293b;
-  color: #cbd5e1;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.85rem;
+  color: #f1f5f9;
+  padding: 12px 16px;
+  min-height: 48px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.btn-timer-sec:active {
+  transform: scale(0.95);
 }
 
 .btn-timer-sec:hover {
@@ -1292,37 +1332,63 @@
   background: rgba(251, 191, 36, 0.2);
   color: #fbbf24;
   border: 1px solid rgba(251, 191, 36, 0.4);
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 8px 14px;
+  min-height: 40px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.btn-foul-add:active {
+  transform: scale(0.92);
 }
 
 .btn-foul-remove {
   background: #1e293b;
   color: var(--text-muted);
-  font-size: 0.7rem;
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 8px 12px;
+  min-height: 40px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.btn-foul-remove:active {
+  transform: scale(0.92);
 }
 
 .btn-nominate-mini {
   background: #1e293b;
   color: #cbd5e1;
   border: 1px solid var(--border-color);
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 10px 16px;
+  min-height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-nominate-mini:active {
+  transform: scale(0.95);
 }
 
 .btn-nominate-mini.nominated {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
+  background: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
   border-color: #ef4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
 }
 
 /* Голосование */
@@ -1399,13 +1465,26 @@
 .btn-vote-step {
   background: #1e293b;
   color: #fff;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 12px;
   font-weight: 800;
+  font-size: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.btn-vote-step:active {
+  transform: scale(0.92);
+}
+
+.btn-vote-step:hover {
+  background: #334155;
 }
 
 .vote-total-badge {
@@ -1429,13 +1508,19 @@
 .btn-execute {
   background: linear-gradient(135deg, #ef4444, #b91c1c);
   color: #fff;
-  font-weight: 700;
-  font-size: 0.9rem;
-  padding: 10px 18px;
-  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 12px 20px;
+  min-height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-execute:active {
+  transform: scale(0.95);
 }
 
 .executed-tag {
@@ -2148,9 +2233,11 @@
   }
 
   .stepper-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 14px;
   }
 
   .stepper-value {
@@ -2226,18 +2313,23 @@
 
   .role-btn-minus, 
   .role-btn-plus {
-    width: 38px;
-    height: 38px;
-    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.15rem;
+    font-weight: 700;
   }
 
   .role-counter {
-    font-size: 1.15rem;
-    min-width: 28px;
+    font-size: 1.25rem;
+    min-width: 34px;
     text-align: center;
+    font-weight: 800;
   }
 
   .mode-toggle {

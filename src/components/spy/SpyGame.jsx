@@ -315,7 +315,7 @@ export default function SpyGame({ onBackToHub }) {
                     key={num}
                     type="button"
                     onClick={() => setPlayerCount(num)}
-                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                    className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all border active:scale-95 ${
                       playerCount === num
                         ? 'bg-sky-500 text-white border-sky-400 shadow-md shadow-sky-950/40'
                         : 'bg-slate-950/60 text-slate-400 border-slate-800 hover:bg-slate-800'

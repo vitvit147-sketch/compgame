@@ -11,6 +11,7 @@ import GameOverScreen from './components/trapwords/GameOverScreen';
 // Компоненты Мафии для ведущего
 import { Navbar } from './components/Navbar';
 import { SetupScreen } from './components/SetupScreen';
+import DealingPhase from './components/DealingPhase';
 import { NightPhase } from './components/NightPhase';
 import { MorningSummary } from './components/MorningSummary';
 import { DayPhase } from './components/DayPhase';
@@ -107,8 +108,18 @@ export function App() {
   const handleStartGame = (initialPlayers, settings = {}) => {
     setPlayers(initialPlayers);
     setGameSettings(settings);
+    if (settings.passAndPlayDealing) {
+      setGameState({ phase: 'dealing', round: 1 });
+      addLog('Раздача ролей', `Игроки по очереди смотрят свои роли (Pass & Play).`);
+    } else {
+      setGameState({ phase: 'night', round: 1 });
+      addLog('Начало игры', `Партия началась! Участников: ${initialPlayers.length}.`);
+    }
+  };
+
+  const handleDealingComplete = () => {
     setGameState({ phase: 'night', round: 1 });
-    addLog('Начало игры', `Партия началась! Участников: ${initialPlayers.length}.`);
+    addLog('Ночь #1', `Все роли розданы. Город засыпает...`);
   };
 
   const handleFinishNight = (nightActions) => {
@@ -351,19 +362,29 @@ export function App() {
         <span className="text-slate-400">Режим: Оффлайн-ассистент ведущего</span>
       </div>
 
-      <Navbar
-        gameState={gameState}
-        players={players}
-        onOpenRules={() => setIsRulesOpen(true)}
-        onOpenLog={() => setIsLogOpen(true)}
-        onResetGame={handleResetMafia}
-        isMuted={isMuted}
-        setIsMuted={setIsMuted}
-      />
+      {gameState.phase !== 'dealing' && (
+        <Navbar
+          gameState={gameState}
+          players={players}
+          onOpenRules={() => setIsRulesOpen(true)}
+          onOpenLog={() => setIsLogOpen(true)}
+          onResetGame={handleResetMafia}
+          isMuted={isMuted}
+          setIsMuted={setIsMuted}
+        />
+      )}
 
       <main className="main-content">
         {gameState.phase === 'setup' && (
           <SetupScreen onStartGame={handleStartGame} />
+        )}
+
+        {gameState.phase === 'dealing' && (
+          <DealingPhase
+            players={players}
+            onDealingComplete={handleDealingComplete}
+            onCancel={() => setGameState({ phase: 'setup', round: 1 })}
+          />
         )}
 
         {gameState.phase === 'night' && (

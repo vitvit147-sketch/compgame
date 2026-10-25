@@ -22,9 +22,10 @@ export function SetupScreen({ onStartGame }) {
   const [assignMode, setAssignMode] = useState('auto'); // 'auto' | 'manual'
   const [manualAssignments, setManualAssignments] = useState({});
 
-  // Настройки для малой компании
+  // Настройки для малой компании и раздачи
   const [noKillFirstNight, setNoKillFirstNight] = useState(true);
   const [noKillDay1, setNoKillDay1] = useState(true);
+  const [passAndPlayDealing, setPassAndPlayDealing] = useState(true);
 
   // Подсчет выбранных ролей
   const totalRolesSelected = Object.values(roleCounts).reduce((a, b) => a + (b || 0), 0);
@@ -125,7 +126,8 @@ export function SetupScreen({ onStartGame }) {
     sound.playGong();
     onStartGame(finalPlayers, {
       noKillFirstNight,
-      noKillDay1
+      noKillDay1,
+      passAndPlayDealing
     });
   };
 
@@ -228,6 +230,18 @@ export function SetupScreen({ onStartGame }) {
         </p>
 
         <div className="small-rules-options">
+          <label className="checkbox-card-label">
+            <input 
+              type="checkbox" 
+              checked={passAndPlayDealing}
+              onChange={(e) => setPassAndPlayDealing(e.target.checked)}
+            />
+            <div className="checkbox-card-content">
+              <strong>📱 Раздача ролей через телефон (Pass & Play)</strong>
+              <span>Игроки по очереди берут телефон и тайно смотрят свою карту. Если у вас пластиковые/бумажные карты — снимите галочку.</span>
+            </div>
+          </label>
+
           <label className="checkbox-card-label">
             <input 
               type="checkbox" 
@@ -411,7 +425,7 @@ export function SetupScreen({ onStartGame }) {
           disabled={!canStart}
           onClick={handleStart}
         >
-          <span>НАЧАТЬ ПЕРВУЮ НОЧЬ 🌙</span>
+          <span>{passAndPlayDealing ? 'РАЗДАТЬ РОЛИ ИГРОКАМ 📱' : 'НАЧАТЬ ПЕРВУЮ НОЧЬ 🌙'}</span>
         </button>
       </div>
     </div>
