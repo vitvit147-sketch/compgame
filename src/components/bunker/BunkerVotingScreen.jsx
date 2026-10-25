@@ -78,7 +78,7 @@ export default function BunkerVotingScreen({ roomData, myPlayer, isHost }) {
                     key={candidate.id}
                     type="button"
                     onClick={() => handleCastVote(candidate.id)}
-                    className={`w-full min-h-[64px] p-4.5 rounded-3xl border text-left flex items-center justify-between transition-all active:scale-98 touch-manipulation shadow-lg ${
+                    className={`w-full min-h-[64px] p-5 sm:p-6 rounded-3xl border text-left flex items-center justify-between transition-all active:scale-98 touch-manipulation shadow-lg ${
                       isSelected
                         ? 'bg-rose-500/20 border-rose-500 shadow-rose-950/50 text-white ring-1 ring-rose-500/40'
                         : 'bg-slate-900/90 border-slate-800 hover:border-slate-700 text-slate-200'

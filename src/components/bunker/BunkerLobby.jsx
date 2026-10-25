@@ -61,7 +61,7 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
   );
 
   return (
-    <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto select-none overflow-y-auto">
+    <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-lg w-full mx-auto select-none overflow-y-auto">
       {/* Крупный эргономичный хедер */}
       <GameHeader
         onBack={onLeaveRoom}
@@ -71,32 +71,32 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
         rightAction={headerActions}
       />
 
-      <main className="p-4 space-y-4 pb-44">
+      <main className="px-5 sm:px-6 py-6 space-y-6 sm:space-y-7 pb-44">
         {/* Карточка убежища и код комнаты */}
-        <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
+        <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-extrabold text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Shield className="w-4 h-4" />
+            <span className="text-xs font-black text-amber-400 uppercase tracking-widest flex items-center gap-2">
+              <Shield className="w-5 h-5" />
               <span>Номер убежища:</span>
             </span>
-            <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-black text-slate-400 uppercase tracking-wider bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
               {players.length} у входа
             </span>
           </div>
 
-          <div className="flex items-center justify-between bg-slate-950/80 border border-slate-800 p-4 rounded-2xl">
+          <div className="flex items-center justify-between bg-slate-950/80 border border-slate-800 p-5 rounded-2xl">
             <div>
-              <div className="text-xs text-slate-400 font-bold">Код для друзей:</div>
-              <div className="text-4xl font-black font-mono tracking-widest text-amber-400">
+              <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">Код для друзей:</div>
+              <div className="text-4xl sm:text-5xl font-black font-mono tracking-widest text-amber-400 mt-0.5">
                 {roomCode}
               </div>
             </div>
             <button
               type="button"
               onClick={() => setShowQR(true)}
-              className="px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all"
+              className="px-4 py-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-black text-sm flex items-center gap-2 active:scale-95 transition-all shadow-md"
             >
-              <QrCode className="w-4 h-4" />
+              <QrCode className="w-5 h-5" />
               <span>QR-код</span>
             </button>
           </div>
@@ -104,20 +104,20 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
 
         {/* Настройка таймера на выступление (для хоста) */}
         {isHost && (
-          <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
-            <label className="text-sm font-extrabold text-slate-200 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-amber-400" />
+          <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-4">
+            <label className="text-base font-black text-slate-200 flex items-center gap-2.5">
+              <Clock className="w-5 h-5 text-amber-400" />
               <span>Время на речь выжившего в раунде:</span>
             </label>
-            <div className="grid grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-3 gap-3">
               {[30, 45, 60].map(sec => (
                 <button
                   key={sec}
                   type="button"
                   onClick={() => setSpeakerSeconds(sec)}
-                  className={`min-h-[48px] py-3 rounded-2xl text-sm font-black transition-all border active:scale-95 touch-manipulation ${
+                  className={`min-h-[54px] py-3 rounded-2xl text-base font-black transition-all border active:scale-95 touch-manipulation ${
                     speakerSeconds === sec
-                      ? 'bg-amber-500/20 border-amber-500 text-amber-300 shadow-md ring-1 ring-amber-500/40'
+                      ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md ring-1 ring-amber-400/40'
                       : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:bg-slate-850'
                   }`}
                 >
@@ -129,21 +129,21 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
         )}
 
         {/* Список собравшихся участников */}
-        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
-          <div className="flex items-center justify-between text-sm font-extrabold text-slate-200">
+        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xl space-y-4">
+          <div className="flex items-center justify-between text-base font-black text-slate-200">
             <span>Очередь перед гермодверью ({players.length}):</span>
-            <span className="text-amber-400 text-xs font-bold">
-              {players.length < 3 ? 'Нужно минимум 3 чел.' : 'Готовы к входу'}
+            <span className="text-amber-400 text-xs font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+              {players.length < 3 ? 'Нужно мин. 3 чел.' : 'Готовы к входу'}
             </span>
           </div>
 
-          <div className="space-y-2.5 pt-1">
+          <div className="space-y-3 pt-1">
             {players.map(p => (
               <div
                 key={p.id}
-                className={`flex items-center justify-between p-4 rounded-2xl text-sm min-h-[54px] transition-all ${
+                className={`flex items-center justify-between p-4.5 rounded-2xl text-sm min-h-[58px] transition-all ${
                   p.id === myPlayer?.id
-                    ? 'bg-amber-500/15 border border-amber-500/40 font-black text-white shadow-md'
+                    ? 'bg-amber-500/15 border-2 border-amber-500/40 font-black text-white shadow-md'
                     : 'bg-slate-950/70 text-slate-200 border border-slate-800'
                 }`}
               >
@@ -157,7 +157,7 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
                   )}
                 </div>
                 {p.isHost && (
-                  <span className="flex items-center gap-1.5 text-xs text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/20 font-black">
+                  <span className="flex items-center gap-1.5 text-xs text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20 font-black">
                     <Crown className="w-3.5 h-3.5" /> Командир
                   </span>
                 )}
@@ -167,13 +167,13 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
         </section>
 
         {/* Информационная плашка о вместимости */}
-        <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-3xl text-xs sm:text-sm text-amber-300/90 leading-relaxed text-center font-medium shadow-md">
+        <div className="p-5 bg-amber-500/10 border border-amber-500/20 rounded-3xl text-sm text-amber-300/90 leading-relaxed text-center font-medium shadow-md">
           ⚠️ <strong>Суровое правило бункера:</strong> спастись сможет ровно половина ({Math.max(1, Math.floor(players.length / 2))} из {players.length} человек). Лишние кандидаты изгоняются на тайном голосовании!
         </div>
       </main>
 
       {/* Фиксированная кнопка запуска внизу экрана с защитой от вырезов */}
-      <footer className="fixed bottom-0 left-0 right-0 p-4 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] bg-slate-950/95 backdrop-blur-2xl border-t border-slate-800/90 z-40 max-w-md mx-auto shadow-2xl">
+      <footer className="fixed bottom-0 left-0 right-0 p-4 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] bg-slate-950/95 backdrop-blur-2xl border-t border-slate-800/90 z-40 max-w-lg mx-auto shadow-2xl">
         {isHost ? (
           <button
             type="button"

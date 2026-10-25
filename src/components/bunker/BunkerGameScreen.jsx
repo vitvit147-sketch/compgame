@@ -113,7 +113,7 @@ export default function BunkerGameScreen({ roomData, myPlayer, isHost }) {
 
         {/* Карточка помещения бункера в текущем раунде */}
         {currentRoom.title && (
-          <section className="bg-gradient-to-r from-slate-900 via-sky-950/40 to-slate-900 border border-sky-500/30 rounded-3xl p-4.5 shadow-md flex items-start gap-3.5">
+          <section className="bg-gradient-to-r from-slate-900 via-sky-950/40 to-slate-900 border border-sky-500/30 rounded-3xl p-5 sm:p-6 shadow-md flex items-start gap-3.5">
             <Shield className="w-6 h-6 text-sky-400 shrink-0 mt-0.5" />
             <div>
               <div className="text-sm font-black text-sky-300">
@@ -207,7 +207,7 @@ export default function BunkerGameScreen({ roomData, myPlayer, isHost }) {
               return (
                 <div
                   key={cfg.key}
-                  className={`rounded-3xl p-4.5 border transition-all shadow-lg ${
+                  className={`rounded-3xl p-5 sm:p-6 border transition-all shadow-lg ${
                     isRevealed
                       ? `${cfg.border} bg-slate-900 ring-1 ring-amber-500/20`
                       : 'border-slate-800/80 bg-slate-900/60'
@@ -270,7 +270,7 @@ export default function BunkerGameScreen({ roomData, myPlayer, isHost }) {
                 return (
                   <div
                     key={p.id}
-                    className={`rounded-3xl p-4.5 border transition-all shadow-xl ${
+                    className={`rounded-3xl p-5 sm:p-6 border transition-all shadow-xl ${
                       isPExiled
                         ? 'bg-rose-950/20 border-rose-900/40 opacity-70'
                         : p.id === myPlayer?.id

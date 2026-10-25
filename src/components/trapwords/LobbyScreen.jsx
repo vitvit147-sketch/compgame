@@ -100,7 +100,7 @@ export default function LobbyScreen({ roomData, myPlayer, isHost, onLeaveRoom })
   );
 
   return (
-    <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto select-none overflow-y-auto">
+    <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-lg w-full mx-auto select-none overflow-y-auto">
       {/* Крупный эргономичный хедер */}
       <GameHeader
         onBack={onLeaveRoom}
@@ -110,7 +110,7 @@ export default function LobbyScreen({ roomData, myPlayer, isHost, onLeaveRoom })
         rightAction={headerActions}
       />
 
-      <main className="p-4 space-y-4 pb-44">
+      <main className="px-5 sm:px-6 py-6 space-y-6 sm:space-y-7 pb-44">
         {/* Карточка стола */}
         <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
           <div className="flex items-center justify-between">
@@ -317,7 +317,7 @@ export default function LobbyScreen({ roomData, myPlayer, isHost, onLeaveRoom })
       </main>
 
       {/* Нижняя кнопка старта или ожидание */}
-      <footer className="fixed bottom-0 left-0 right-0 p-4 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] bg-slate-950/95 backdrop-blur-2xl border-t border-slate-800/90 z-40 max-w-md mx-auto shadow-2xl">
+      <footer className="fixed bottom-0 left-0 right-0 p-4 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] bg-slate-950/95 backdrop-blur-2xl border-t border-slate-800/90 z-40 max-w-lg mx-auto shadow-2xl">
         {isHost ? (
           <button
             type="button"
