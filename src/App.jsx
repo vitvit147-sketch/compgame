@@ -31,15 +31,30 @@ import BunkerCatastropheScreen from './components/bunker/BunkerCatastropheScreen
 import BunkerGameScreen from './components/bunker/BunkerGameScreen';
 import BunkerVotingScreen from './components/bunker/BunkerVotingScreen';
 import BunkerFinaleScreen from './components/bunker/BunkerFinaleScreen';
+
+// Компоненты Криминалиста (Deception: Murder in Hong Kong)
+import { deceptionSocket, deceptionPlayerId } from './utils/deceptionSocket';
+import DeceptionHome from './components/deception/DeceptionHome';
+import DeceptionLobby from './components/deception/DeceptionLobby';
+import DeceptionNightScreen from './components/deception/DeceptionNightScreen';
+import DeceptionScientistSetup from './components/deception/DeceptionScientistSetup';
+import DeceptionBoardScreen from './components/deception/DeceptionBoardScreen';
+import DeceptionFinaleScreen from './components/deception/DeceptionFinaleScreen';
 import './App.css';
 
 export function App() {
-  // 'menu' (Хаб игр) | 'spy' (Шпион) | 'party' (Слова-мины) | 'mafia' (Пульт ведущего) | 'bunker' (Бункер онлайн)
+  // 'menu' (Хаб игр) | 'spy' (Шпион) | 'party' (Слова-мины) | 'mafia' (Пульт ведущего) | 'bunker' (Бункер онлайн) | 'deception' (Криминалист)
   const [appMode, setAppMode] = useState('menu');
   const [roomData, setRoomData] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [showMafiaExitModal, setShowMafiaExitModal] = useState(false);
   const [mafiaExitAction, setMafiaExitAction] = useState('menu'); // 'menu' | 'reset'
+
+  // -------------------------------------------------------------
+  // ЛОГИКА СОКЕТОВ ДЛЯ КРИМИНАЛИСТА ОНЛАЙН (DECEPTION)
+  // -------------------------------------------------------------
+  const [deceptionRoomData, setDeceptionRoomData] = useState(null);
+  const [deceptionErrorMessage, setDeceptionErrorMessage] = useState('');
 
   // -------------------------------------------------------------
   // ЛОГИКА СОКЕТОВ ДЛЯ БУНКЕРА ОНЛАЙН
@@ -51,6 +66,8 @@ export function App() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('bunker_room')) {
       setAppMode('bunker');
+    } else if (params.get('crime_room')) {
+      setAppMode('deception');
     }
   }, []);
 
@@ -111,6 +128,73 @@ export function App() {
     sessionStorage.removeItem('current_bunker_room_code');
     setBunkerRoomData(null);
     setBunkerErrorMessage('');
+    try {
+      if (window.history && window.location.search) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } catch (e) {}
+  };
+
+  // -------------------------------------------------------------
+  // ЛОГИКА СОКЕТОВ ДЛЯ КРИМИНАЛИСТА ОНЛАЙН (DECEPTION)
+  // -------------------------------------------------------------
+  useEffect(() => {
+    const onDeceptionRoomCreated = ({ roomCode }) => {
+      sessionStorage.setItem('current_deception_room_code', roomCode);
+      setDeceptionErrorMessage('');
+    };
+
+    const onDeceptionRoomJoined = ({ roomCode }) => {
+      sessionStorage.setItem('current_deception_room_code', roomCode);
+      setDeceptionErrorMessage('');
+    };
+
+    const onDeceptionRoomUpdate = (data) => {
+      setDeceptionRoomData(data);
+      if (data?.code) {
+        sessionStorage.setItem('current_deception_room_code', data.code);
+      }
+    };
+
+    const onDeceptionError = ({ message }) => {
+      setDeceptionErrorMessage(message);
+    };
+
+    const onDeceptionReconnectFailed = () => {
+      sessionStorage.removeItem('current_deception_room_code');
+      setDeceptionRoomData(null);
+      try {
+        if (window.history && window.location.search) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } catch (e) {}
+    };
+
+    deceptionSocket.on('room_created', onDeceptionRoomCreated);
+    deceptionSocket.on('room_joined', onDeceptionRoomJoined);
+    deceptionSocket.on('room_update', onDeceptionRoomUpdate);
+    deceptionSocket.on('error_message', onDeceptionError);
+    deceptionSocket.on('reconnect_failed', onDeceptionReconnectFailed);
+
+    const savedDeceptionCode = sessionStorage.getItem('current_deception_room_code');
+    if (savedDeceptionCode) {
+      deceptionSocket.emit('reconnect_player', { roomCode: savedDeceptionCode, playerId: deceptionPlayerId });
+    }
+
+    return () => {
+      deceptionSocket.off('room_created', onDeceptionRoomCreated);
+      deceptionSocket.off('room_joined', onDeceptionRoomJoined);
+      deceptionSocket.off('room_update', onDeceptionRoomUpdate);
+      deceptionSocket.off('error_message', onDeceptionError);
+      deceptionSocket.off('reconnect_failed', onDeceptionReconnectFailed);
+    };
+  }, []);
+
+  const handleLeaveDeceptionRoom = (isHost = false) => {
+    deceptionSocket.leaveRoom(isHost);
+    sessionStorage.removeItem('current_deception_room_code');
+    setDeceptionRoomData(null);
+    setDeceptionErrorMessage('');
     try {
       if (window.history && window.location.search) {
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -428,6 +512,32 @@ export function App() {
               <ChevronRight className="w-5 h-5" />
             </div>
           </button>
+
+          {/* Игра 5: КРИМИНАЛИСТ (НОВИНКА) */}
+          <button
+            type="button"
+            onClick={() => setAppMode('deception')}
+            className="w-full p-6 rounded-3xl bg-gradient-to-br from-amber-950/70 via-slate-900 to-slate-900 border-2 border-amber-500/50 hover:border-amber-400 active:border-amber-400 text-left shadow-2xl active:scale-[0.98] transition-all flex items-center justify-between gap-3 touch-manipulation group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-3xl shrink-0 group-hover:scale-105 transition-transform shadow-inner">
+                🔍
+              </div>
+              <div>
+                <div className="text-xs text-amber-400 font-extrabold uppercase tracking-wider flex items-center gap-1.5 mb-1">
+                  <span>Онлайн со смартфонов</span>
+                  <span className="bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 px-2 py-0.5 rounded-full text-[10px] font-black tracking-normal">НОВИНКА</span>
+                </div>
+                <div className="text-xl font-black text-white">КРИМИНАЛИСТ (Deception)</div>
+                <div className="text-xs sm:text-sm text-slate-400 mt-1">
+                  Судмедэксперт без слов, тайный убийца, улики и жетон обвинения
+                </div>
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-2xl bg-slate-800/80 border border-slate-750 flex items-center justify-center text-slate-400 group-hover:text-amber-400 shrink-0">
+              <ChevronRight className="w-5 h-5" />
+            </div>
+          </button>
         </div>
 
         <footer className="text-center pt-2 pb-6 text-xs text-slate-500 font-medium">
@@ -563,6 +673,72 @@ export function App() {
             myPlayer={bunkerRoomData.myPlayer}
             isHost={bunkerRoomData.isHost}
             onExitToHome={handleLeaveBunkerRoom}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // =============================================================
+  // РЕЖИМ 5: КРИМИНАЛИСТ ОНЛАЙН (DECEPTION: MURDER IN HONG KONG)
+  // =============================================================
+  if (appMode === 'deception') {
+    if (!deceptionRoomData) {
+      return (
+        <DeceptionHome
+          onBackToHub={() => setAppMode('menu')}
+          errorMessage={deceptionErrorMessage}
+          setErrorMessage={setDeceptionErrorMessage}
+        />
+      );
+    }
+
+    const crimePhase = deceptionRoomData.game?.phase || 'LOBBY';
+
+    return (
+      <div className="relative min-h-[100dvh] bg-slate-950">
+        {crimePhase === 'LOBBY' && (
+          <DeceptionLobby
+            roomData={deceptionRoomData}
+            myPlayer={deceptionRoomData.myPlayer}
+            isHost={deceptionRoomData.isHost}
+            onLeaveRoom={handleLeaveDeceptionRoom}
+          />
+        )}
+
+        {crimePhase === 'NIGHT' && (
+          <DeceptionNightScreen
+            roomData={deceptionRoomData}
+            myPlayer={deceptionRoomData.myPlayer}
+            isHost={deceptionRoomData.isHost}
+            onLeaveRoom={handleLeaveDeceptionRoom}
+          />
+        )}
+
+        {crimePhase === 'SCIENTIST_SETUP' && (
+          <DeceptionScientistSetup
+            roomData={deceptionRoomData}
+            myPlayer={deceptionRoomData.myPlayer}
+            isHost={deceptionRoomData.isHost}
+            onLeaveRoom={handleLeaveDeceptionRoom}
+          />
+        )}
+
+        {crimePhase === 'DISCUSSION' && (
+          <DeceptionBoardScreen
+            roomData={deceptionRoomData}
+            myPlayer={deceptionRoomData.myPlayer}
+            isHost={deceptionRoomData.isHost}
+            onLeaveRoom={handleLeaveDeceptionRoom}
+          />
+        )}
+
+        {(crimePhase === 'WITNESS_GUESS' || crimePhase === 'GAME_OVER') && (
+          <DeceptionFinaleScreen
+            roomData={deceptionRoomData}
+            myPlayer={deceptionRoomData.myPlayer}
+            isHost={deceptionRoomData.isHost}
+            onExitToHome={handleLeaveDeceptionRoom}
           />
         )}
       </div>
