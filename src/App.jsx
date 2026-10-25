@@ -40,15 +40,29 @@ import DeceptionNightScreen from './components/deception/DeceptionNightScreen';
 import DeceptionScientistSetup from './components/deception/DeceptionScientistSetup';
 import DeceptionBoardScreen from './components/deception/DeceptionBoardScreen';
 import DeceptionFinaleScreen from './components/deception/DeceptionFinaleScreen';
+
+// Компоненты Мафии Онлайн
+import { mafiaOnlineSocket, mafiaOnlinePlayerId } from './utils/mafiaOnlineSocket';
+import MafiaOnlineHome from './components/mafia_online/MafiaOnlineHome';
+import MafiaOnlinePlayerLobby from './components/mafia_online/MafiaOnlinePlayerLobby';
+import MafiaOnlineHostLobby from './components/mafia_online/MafiaOnlineHostLobby';
+import MafiaOnlinePlayerGameScreen from './components/mafia_online/MafiaOnlinePlayerGameScreen';
 import './App.css';
 
 export function App() {
-  // 'menu' (Хаб игр) | 'spy' (Шпион) | 'party' (Слова-мины) | 'mafia' (Пульт ведущего) | 'bunker' (Бункер онлайн) | 'deception' (Криминалист)
+  // 'menu' (Хаб игр) | 'spy' (Шпион) | 'party' (Слова-мины) | 'mafia' (Мафия) | 'bunker' (Бункер онлайн) | 'deception' (Криминалист)
   const [appMode, setAppMode] = useState('menu');
   const [roomData, setRoomData] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [showMafiaExitModal, setShowMafiaExitModal] = useState(false);
   const [mafiaExitAction, setMafiaExitAction] = useState('menu'); // 'menu' | 'reset'
+  const [mafiaSubMode, setMafiaSubMode] = useState(null); // null (выбор) | 'offline' | 'online'
+
+  // -------------------------------------------------------------
+  // ЛОГИКА СОКЕТОВ ДЛЯ МАФИИ ОНЛАЙН
+  // -------------------------------------------------------------
+  const [mafiaOnlineRoomData, setMafiaOnlineRoomData] = useState(null);
+  const [mafiaOnlineErrorMessage, setMafiaOnlineErrorMessage] = useState('');
 
   // -------------------------------------------------------------
   // ЛОГИКА СОКЕТОВ ДЛЯ КРИМИНАЛИСТА ОНЛАЙН (DECEPTION)
@@ -68,6 +82,9 @@ export function App() {
       setAppMode('bunker');
     } else if (params.get('crime_room')) {
       setAppMode('deception');
+    } else if (params.get('mafia_room')) {
+      setAppMode('mafia');
+      setMafiaSubMode('online');
     }
   }, []);
 
@@ -203,6 +220,90 @@ export function App() {
   };
 
   // -------------------------------------------------------------
+  // ЛОГИКА СОКЕТОВ ДЛЯ МАФИИ ОНЛАЙН
+  // -------------------------------------------------------------
+  useEffect(() => {
+    const onMafiaRoomCreated = ({ roomCode }) => {
+      sessionStorage.setItem('current_mafia_online_room_code', roomCode);
+      setMafiaOnlineErrorMessage('');
+      setMafiaSubMode('online');
+    };
+
+    const onMafiaRoomJoined = ({ roomCode }) => {
+      sessionStorage.setItem('current_mafia_online_room_code', roomCode);
+      setMafiaOnlineErrorMessage('');
+      setMafiaSubMode('online');
+    };
+
+    const onMafiaRoomUpdate = (data) => {
+      setMafiaOnlineRoomData(data);
+      if (data?.code) {
+        sessionStorage.setItem('current_mafia_online_room_code', data.code);
+        setMafiaSubMode('online');
+      }
+
+      // Если я хост и игра только что запустилась из лобби — синхронизируем локальный пульт ведущего
+      if (data?.isHost && data?.game?.status === 'PLAYING' && data.players) {
+        const gamePlayers = data.players.filter(p => !p.isHost);
+        if (gamePlayers.length > 0 && players.length === 0) {
+          setPlayers(gamePlayers);
+          setGameState(prev => ({
+            phase: data.game.phase || 'night',
+            round: data.game.round || 1
+          }));
+        }
+      }
+    };
+
+    const onMafiaError = ({ message }) => {
+      setMafiaOnlineErrorMessage(message);
+    };
+
+    const onMafiaReconnectFailed = () => {
+      sessionStorage.removeItem('current_mafia_online_room_code');
+      setMafiaOnlineRoomData(null);
+      setMafiaSubMode(null);
+      try {
+        if (window.history && window.location.search) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } catch (e) {}
+    };
+
+    mafiaOnlineSocket.on('room_created', onMafiaRoomCreated);
+    mafiaOnlineSocket.on('room_joined', onMafiaRoomJoined);
+    mafiaOnlineSocket.on('room_update', onMafiaRoomUpdate);
+    mafiaOnlineSocket.on('error_message', onMafiaError);
+    mafiaOnlineSocket.on('reconnect_failed', onMafiaReconnectFailed);
+
+    const savedMafiaCode = sessionStorage.getItem('current_mafia_online_room_code');
+    if (savedMafiaCode) {
+      mafiaOnlineSocket.emit('reconnect_player', { roomCode: savedMafiaCode, playerId: mafiaOnlinePlayerId });
+    }
+
+    return () => {
+      mafiaOnlineSocket.off('room_created', onMafiaRoomCreated);
+      mafiaOnlineSocket.off('room_joined', onMafiaRoomJoined);
+      mafiaOnlineSocket.off('room_update', onMafiaRoomUpdate);
+      mafiaOnlineSocket.off('error_message', onMafiaError);
+      mafiaOnlineSocket.off('reconnect_failed', onMafiaReconnectFailed);
+    };
+  }, [players.length]);
+
+  const handleLeaveMafiaOnlineRoom = (isHost = false) => {
+    mafiaOnlineSocket.leaveRoom(isHost);
+    sessionStorage.removeItem('current_mafia_online_room_code');
+    setMafiaOnlineRoomData(null);
+    setMafiaOnlineErrorMessage('');
+    setMafiaSubMode(null);
+    try {
+      if (window.history && window.location.search) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } catch (e) {}
+  };
+
+  // -------------------------------------------------------------
   // ЛОГИКА СОКЕТОВ ДЛЯ ОНЛАЙН СТОЛОВ («Слова-мины»)
   // -------------------------------------------------------------
   useEffect(() => {
@@ -319,16 +420,39 @@ export function App() {
       setVictoryInfo(win);
       addLog('Финал игры', `${win.title} — ${win.reason}`);
     }
+
+    if (mafiaOnlineRoomData?.isHost) {
+      mafiaOnlineSocket.emit('sync_host_game_state', {
+        phase: 'morning',
+        round: gameState.round,
+        nightResult: result,
+        winner: win?.winner || null,
+        players: result.updatedPlayers
+      });
+    }
   };
 
   const handleProceedToDay = () => {
     const win = checkWinCondition(players);
     if (win) {
       setVictoryInfo(win);
+      if (mafiaOnlineRoomData?.isHost) {
+        mafiaOnlineSocket.emit('sync_host_game_state', {
+          phase: 'game_over',
+          winner: win.winner
+        });
+      }
       return;
     }
     setGameState(prev => ({ ...prev, phase: 'day' }));
     addLog(`День #${gameState.round}`, 'Город проснулся. Начало обсуждения и голосования.');
+
+    if (mafiaOnlineRoomData?.isHost) {
+      mafiaOnlineSocket.emit('sync_host_game_state', {
+        phase: 'day',
+        round: gameState.round
+      });
+    }
   };
 
   const handleFinishDay = () => {
@@ -336,10 +460,34 @@ export function App() {
     if (win) {
       setVictoryInfo(win);
       addLog('Финал игры', `${win.title} — ${win.reason}`);
+      if (mafiaOnlineRoomData?.isHost) {
+        mafiaOnlineSocket.emit('sync_host_game_state', {
+          phase: 'game_over',
+          winner: win.winner
+        });
+      }
       return;
     }
     setGameState(prev => ({ phase: 'night', round: prev.round + 1 }));
     addLog(`День #${gameState.round}`, 'Дневное собрание закрыто. Город засыпает...');
+
+    if (mafiaOnlineRoomData?.isHost) {
+      mafiaOnlineSocket.emit('sync_host_game_state', {
+        phase: 'night',
+        round: gameState.round + 1,
+        players
+      });
+    }
+  };
+
+  const handleSetPlayersSynced = (newPlayersOrUpdater) => {
+    setPlayers(prev => {
+      const next = typeof newPlayersOrUpdater === 'function' ? newPlayersOrUpdater(prev) : newPlayersOrUpdater;
+      if (mafiaOnlineRoomData?.isHost) {
+        mafiaOnlineSocket.emit('sync_host_game_state', { players: next });
+      }
+      return next;
+    });
   };
 
   const handleKamikazeWin = (kamikazePlayer) => {
@@ -351,6 +499,13 @@ export function App() {
     };
     setVictoryInfo(win);
     addLog('Финал игры', win.reason);
+
+    if (mafiaOnlineRoomData?.isHost) {
+      mafiaOnlineSocket.emit('sync_host_game_state', {
+        phase: 'game_over',
+        winner: 'kamikaze'
+      });
+    }
   };
 
   const handleConfirmMafiaExit = () => {
@@ -360,7 +515,11 @@ export function App() {
     setNightResult(null);
     setVictoryInfo(null);
     setGameLogs([]);
+    if (mafiaOnlineRoomData?.isHost) {
+      handleLeaveMafiaOnlineRoom(true);
+    }
     if (mafiaExitAction === 'menu') {
+      setMafiaSubMode(null);
       setAppMode('menu');
     }
   };
@@ -474,12 +633,13 @@ export function App() {
                 🎭
               </div>
               <div>
-                <div className="text-xs text-purple-400 font-extrabold uppercase tracking-wider mb-1">
-                  Оффлайн-пульт ведущего
+                <div className="text-xs text-purple-400 font-extrabold uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <span>Онлайн со смартфонов</span>
+                  <span className="bg-purple-500 text-white px-2 py-0.5 rounded-full text-[10px] font-black tracking-normal">ОБНОВЛЕНО</span>
                 </div>
-                <div className="text-xl font-black text-white">Мафия (Пульт ведущего)</div>
+                <div className="text-xl font-black text-white">Мафия (Онлайн & Пульт)</div>
                 <div className="text-xs sm:text-sm text-slate-400 mt-1">
-                  Все роли, таймер, фолы и авто-расчет ночи
+                  Подключение по коду комнаты, тайные роли на экране + пульт
                 </div>
               </div>
             </div>
@@ -746,8 +906,56 @@ export function App() {
   }
 
   // =============================================================
-  // РЕЖИМ 4: МАФИЯ: ПУЛЬТ ВЕДУЩЕГО
+  // РЕЖИМ 4: МАФИЯ: ОНЛАЙН ИЛИ ПУЛЬТ ВЕДУЩЕГО
   // =============================================================
+  // 1. Выбор режима входа (если еще не выбрано и не в комнате)
+  if (!mafiaSubMode && !mafiaOnlineRoomData) {
+    return (
+      <MafiaOnlineHome
+        onBackToHub={() => setAppMode('menu')}
+        onSelectOfflineMode={() => setMafiaSubMode('offline')}
+        errorMessage={mafiaOnlineErrorMessage}
+        setErrorMessage={setMafiaOnlineErrorMessage}
+      />
+    );
+  }
+
+  // 2. Игрок или Хост находится в онлайн-комнате
+  if (mafiaOnlineRoomData) {
+    // Фаза ожидания в лобби
+    if (mafiaOnlineRoomData.game?.status === 'LOBBY') {
+      if (mafiaOnlineRoomData.isHost) {
+        return (
+          <MafiaOnlineHostLobby
+            roomData={mafiaOnlineRoomData}
+            myPlayer={mafiaOnlineRoomData.myPlayer}
+            onLeaveRoom={handleLeaveMafiaOnlineRoom}
+          />
+        );
+      } else {
+        return (
+          <MafiaOnlinePlayerLobby
+            roomData={mafiaOnlineRoomData}
+            myPlayer={mafiaOnlineRoomData.myPlayer}
+            onLeaveRoom={handleLeaveMafiaOnlineRoom}
+          />
+        );
+      }
+    }
+
+    // Фаза активной игры для обычных игроков (видят свою роль)
+    if (mafiaOnlineRoomData.game?.status === 'PLAYING' && !mafiaOnlineRoomData.isHost) {
+      return (
+        <MafiaOnlinePlayerGameScreen
+          roomData={mafiaOnlineRoomData}
+          myPlayer={mafiaOnlineRoomData.myPlayer}
+          onLeaveRoom={handleLeaveMafiaOnlineRoom}
+        />
+      );
+    }
+  }
+
+  // 3. Пульт ведущего (для Хоста онлайн или Оффлайн-игры на 1 телефоне)
   return (
     <div className="app-container">
       <GameHeader
@@ -755,7 +963,7 @@ export function App() {
         backLabel="В меню"
         title="МАФИЯ"
         icon="🎭"
-        badge="Пульт ведущего"
+        badge={mafiaOnlineRoomData?.isHost ? `Комната №${mafiaOnlineRoomData.code}` : "Пульт ведущего"}
       />
 
       {gameState.phase !== 'dealing' && (
@@ -798,7 +1006,7 @@ export function App() {
             round={gameState.round}
             nightResult={nightResult}
             players={players}
-            setPlayers={setPlayers}
+            setPlayers={handleSetPlayersSynced}
             onProceedToDay={handleProceedToDay}
           />
         )}
@@ -807,7 +1015,7 @@ export function App() {
           <DayPhase
             round={gameState.round}
             players={players}
-            setPlayers={setPlayers}
+            setPlayers={handleSetPlayersSynced}
             onFinishDay={handleFinishDay}
             onKamikazeWin={handleKamikazeWin}
             settings={gameSettings}
@@ -822,7 +1030,11 @@ export function App() {
         players={players}
         onRestart={() => {
           setVictoryInfo(null);
-          setGameState({ phase: 'setup', round: 1 });
+          if (mafiaOnlineRoomData?.isHost) {
+            mafiaOnlineSocket.emit('reset_to_lobby');
+          } else {
+            setGameState({ phase: 'setup', round: 1 });
+          }
         }}
       />
 
