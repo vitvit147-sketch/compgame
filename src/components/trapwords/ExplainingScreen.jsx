@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { socket } from '../../utils/socket';
 import { sounds } from '../../utils/soundEffects';
-import { Clock, Bomb, CheckCircle2, Flag, Mic, Volume2, AlertTriangle, Flame } from 'lucide-react';
+import { Clock, Bomb, CheckCircle2, Flag, Mic, Volume2, AlertTriangle } from 'lucide-react';
 
 export default function ExplainingScreen({ roomData, myPlayer }) {
   const game = roomData.game || {};
@@ -12,7 +12,7 @@ export default function ExplainingScreen({ roomData, myPlayer }) {
 
   const explainingTeamName = game.explainingTeam === 'blue' ? 'Синяя' : 'Красная';
 
-  // Звуковой тик на последних секундах
+  // Звуковой тик на последних 5 секундах
   useEffect(() => {
     if (game.timer <= 5 && game.timer > 0) {
       sounds.playTick();
@@ -42,14 +42,14 @@ export default function ExplainingScreen({ roomData, myPlayer }) {
       : 'bg-slate-800 border-slate-700 text-sky-300';
 
   return (
-    <div className="min-h-[100dvh] flex flex-col justify-between p-4 max-w-md mx-auto text-slate-100">
+    <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto px-4 pt-safe pb-safe space-y-4 select-none">
       {/* Шапка раунда и счет */}
-      <header className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 shadow-lg backdrop-blur-md mb-3 flex items-center justify-between">
+      <header className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex items-center justify-between">
         <div>
-          <div className="text-[11px] font-semibold text-slate-400">
+          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
             Раунд {game.round} • Объяснение
           </div>
-          <div className="flex items-center gap-2 mt-0.5 font-bold text-sm">
+          <div className="flex items-center gap-2 mt-0.5 font-black text-sm">
             <span className="text-rose-400">🔴 {game.scores.red}</span>
             <span className="text-slate-600">:</span>
             <span className="text-sky-400">🔵 {game.scores.blue}</span>
@@ -60,29 +60,29 @@ export default function ExplainingScreen({ roomData, myPlayer }) {
         </div>
 
         {/* Большой таймер */}
-        <div className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-mono font-black text-lg border transition-all ${timerColor}`}>
-          <Clock className="w-5 h-5" />
+        <div className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-mono font-black text-base border transition-all ${timerColor}`}>
+          <Clock className="w-4 h-4" />
           <span>{game.timer}с</span>
         </div>
       </header>
 
       {/* Основной контент */}
-      <div className="flex-1 my-auto space-y-4">
+      <div className="space-y-4">
         {/* ======================================================== */}
         {/* ВАРИАНТ 1: ВЫ СПИКЕР (Объясняете секретное слово команде) */}
         {/* ======================================================== */}
         {isSpeaker && (
           <div className="space-y-4">
-            {/* Огромная карточка со словом */}
+            {/* Карточка со словом */}
             <div className="bg-gradient-to-br from-sky-950/90 via-slate-900 to-slate-900 border-2 border-sky-500/60 rounded-3xl p-6 text-center shadow-2xl shadow-sky-950/50">
               <div className="text-xs font-bold text-sky-400 uppercase tracking-widest mb-2 flex items-center justify-center gap-1.5">
                 <Mic className="w-4 h-4 animate-bounce" />
                 <span>Вы объясняете слово:</span>
               </div>
-              <div className="text-4xl font-black tracking-wide text-white uppercase py-2 drop-shadow-lg">
+              <div className="text-3xl sm:text-4xl font-black tracking-wide text-white uppercase py-2 drop-shadow-lg">
                 {game.word}
               </div>
-              <div className="text-[11px] text-rose-300 font-medium bg-rose-500/10 border border-rose-500/20 py-1.5 px-3 rounded-xl mt-3">
+              <div className="text-xs text-rose-300 font-semibold bg-rose-500/10 border border-rose-500/20 py-2 px-3 rounded-2xl mt-3 leading-snug">
                 ⚠️ Соперники расставили {game.trapCount} мин! Не называйте очевидных слов!
               </div>
             </div>
@@ -90,16 +90,16 @@ export default function ExplainingScreen({ roomData, myPlayer }) {
             {/* Кнопка "УГАДАНО!" */}
             <button
               onClick={handleGuessSuccess}
-              className="w-full py-5 px-6 rounded-2xl font-black text-lg uppercase tracking-wider flex items-center justify-center gap-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-xl shadow-emerald-950/50 active:scale-95 transition-all"
+              className="w-full py-5 px-6 rounded-2xl font-black text-base sm:text-lg uppercase tracking-wider flex items-center justify-center gap-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-xl shadow-emerald-950/50 active:scale-95 transition-all"
             >
-              <CheckCircle2 className="w-7 h-7" />
+              <CheckCircle2 className="w-6 h-6" />
               <span>Команда угадала!</span>
             </button>
 
             {/* Кнопка "Сдаться" */}
             <button
               onClick={handleGiveUp}
-              className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 bg-slate-900/60 border border-slate-800 flex items-center justify-center gap-1.5 active:scale-98 transition-all"
+              className="w-full py-3 px-4 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-200 bg-slate-900 border border-slate-800 flex items-center justify-center gap-1.5 active:scale-98 transition-all"
             >
               <Flag className="w-3.5 h-3.5" />
               <span>Сдаться в этом раунде</span>
@@ -111,25 +111,25 @@ export default function ExplainingScreen({ roomData, myPlayer }) {
         {/* ВАРИАНТ 2: ВЫ В ОТГАДЫВАЮЩЕЙ КОМАНДЕ (Слушаете спикера и гадаете) */}
         {/* =============================================================== */}
         {isMyTeamExplaining && !isSpeaker && (
-          <div className="space-y-4 text-center">
+          <div className="space-y-4 text-center py-2">
             <div className="w-24 h-24 mx-auto rounded-full bg-sky-500/10 border-2 border-sky-400/40 flex items-center justify-center text-sky-400 shadow-xl shadow-sky-500/10">
               <Volume2 className="w-12 h-12 animate-pulse" />
             </div>
 
-            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-2">
-              <h2 className="text-xl font-bold text-white">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-2">
+              <h2 className="text-xl font-black text-white">
                 Слушайте спикера и отгадывайте!
               </h2>
-              <div className="text-xs text-sky-300 font-semibold">
+              <div className="text-xs text-sky-300 font-bold">
                 Спикер: {game.speakerName}
               </div>
               <p className="text-xs text-slate-400 leading-relaxed pt-2">
-                Спикер объясняет вам секретное слово голосом. Выкрикивайте свои варианты! Как только кто-то назовет правильное слово — спикер нажмет кнопку «Угадано».
+                Спикер объясняет вам секретное слово голосом. Выкрикивайте свои варианты вслух! Как только прозвучит правильный ответ — спикер нажмет кнопку «Угадано».
               </p>
             </div>
 
-            <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-xl text-[11px] text-slate-400">
-              Мины соперников скрыты от вас и спикера. Будьте внимательны!
+            <div className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-2xl text-xs text-slate-400">
+              Мины соперников скрыты от вас и спикера.
             </div>
           </div>
         )}
@@ -139,17 +139,17 @@ export default function ExplainingScreen({ roomData, myPlayer }) {
         {/* =============================================================== */}
         {isMyTeamTrapping && (
           <div className="space-y-3">
-            <div className="bg-gradient-to-r from-rose-950/70 to-slate-900 border border-rose-800/40 rounded-2xl p-3 text-center">
-              <div className="text-[11px] text-rose-300 font-semibold uppercase tracking-wider mb-0.5">
+            <div className="bg-gradient-to-r from-rose-950/70 to-slate-900 border border-rose-800/40 rounded-2xl p-3.5 text-center">
+              <div className="text-[11px] text-rose-300 font-bold uppercase tracking-wider mb-0.5">
                 Спикер соперников объясняет слово:
               </div>
-              <div className="text-xl font-black text-white uppercase tracking-wide">
+              <div className="text-2xl font-black text-white uppercase tracking-wide">
                 «{game.word}»
               </div>
             </div>
 
             <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5 px-1">
-              <AlertTriangle className="w-4 h-4 text-amber-400" />
+              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
               <span>Нажмите кнопку мины, если спикер произнес ее!</span>
             </div>
 
@@ -161,12 +161,12 @@ export default function ExplainingScreen({ roomData, myPlayer }) {
                   onClick={() => handleTriggerTrap(idx)}
                   className="w-full py-4 px-4 rounded-2xl font-black text-base uppercase tracking-wider flex items-center justify-between bg-gradient-to-r from-rose-700 via-rose-600 to-amber-600 hover:from-rose-600 hover:to-amber-500 text-white shadow-xl shadow-rose-950/40 border border-rose-500/40 active:scale-95 transition-all"
                 >
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-2.5">
                     <Bomb className="w-5 h-5 text-amber-200 animate-pulse" />
                     <span>{trap || `Мина #${idx + 1}`}</span>
                   </span>
-                  <span className="text-[10px] font-bold bg-black/30 px-2 py-1 rounded-md border border-white/20">
-                    БАХ!
+                  <span className="text-xs font-black bg-black/40 px-2.5 py-1 rounded-lg border border-white/20">
+                    БАХ! 💥
                   </span>
                 </button>
               ))}
@@ -176,7 +176,7 @@ export default function ExplainingScreen({ roomData, myPlayer }) {
       </div>
 
       {/* Футер */}
-      <footer className="pt-2 text-center text-[11px] text-slate-500">
+      <footer className="pt-2 pb-6 text-center text-xs text-slate-500">
         Объясняет {explainingTeamName} команда • Соперники слушают в оба уха
       </footer>
     </div>

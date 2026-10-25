@@ -183,9 +183,9 @@ export function App() {
   // =============================================================
   if (appMode === 'menu') {
     return (
-      <div className="min-h-[100dvh] bg-slate-950 text-slate-100 p-4 max-w-md mx-auto flex flex-col justify-between select-none">
-        <header className="text-center pt-6 pb-4">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-3">
+      <div className="min-h-[100dvh] bg-slate-950 text-slate-100 px-4 pt-safe pb-safe max-w-md w-full mx-auto flex flex-col justify-between select-none">
+        <header className="text-center pt-2 pb-4">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-2">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Party Games Hub</span>
           </div>
@@ -197,76 +197,76 @@ export function App() {
           </p>
         </header>
 
-        <div className="space-y-3 my-auto">
+        <div className="space-y-3.5 my-auto py-2">
           {/* Игра 1: ШПИОН */}
           <button
             onClick={() => setAppMode('spy')}
-            className="w-full p-4 rounded-2xl bg-gradient-to-br from-indigo-950/80 via-slate-900 to-slate-900 border border-indigo-500/40 hover:border-indigo-400 text-left shadow-lg active:scale-98 transition-all flex items-center justify-between"
+            className="w-full p-4 rounded-3xl bg-gradient-to-br from-indigo-950/80 via-slate-900 to-slate-900 border border-indigo-500/30 hover:border-indigo-400/60 text-left shadow-xl active:scale-98 transition-all flex items-center justify-between"
           >
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-2xl">
+              <div className="w-13 h-13 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-2xl shrink-0">
                 🕵️‍♂️
               </div>
               <div>
-                <div className="text-xs text-indigo-400 font-bold uppercase tracking-wider">
-                  На одном телефоне (Pass & Play)
+                <div className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">
+                  На 1 телефоне • Pass & Play
                 </div>
                 <div className="text-lg font-black text-white">ШПИОН (Spyfall)</div>
-                <div className="text-[11px] text-slate-400">
-                  Передавайте 1 телефон по кругу • 40+ локаций и ролей
+                <div className="text-xs text-slate-400">
+                  40+ локаций и ролей • Без интернета
                 </div>
               </div>
             </div>
-            <span className="text-xl text-slate-500">→</span>
+            <span className="text-xl text-slate-500 pr-1">→</span>
           </button>
 
           {/* Игра 2: СЛОВА-МИНЫ */}
           <button
             onClick={() => setAppMode('party')}
-            className="w-full p-4 rounded-2xl bg-gradient-to-br from-rose-950/80 via-slate-900 to-slate-900 border border-rose-500/40 hover:border-rose-400 text-left shadow-lg active:scale-98 transition-all flex items-center justify-between"
+            className="w-full p-4 rounded-3xl bg-gradient-to-br from-rose-950/80 via-slate-900 to-slate-900 border border-rose-500/30 hover:border-rose-400/60 text-left shadow-xl active:scale-98 transition-all flex items-center justify-between"
           >
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-xl bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-2xl">
+              <div className="w-13 h-13 rounded-2xl bg-rose-500/20 border border-rose-400/30 flex items-center justify-center text-2xl shrink-0">
                 💣
               </div>
               <div>
-                <div className="text-xs text-rose-400 font-bold uppercase tracking-wider">
-                  Онлайн со смартфонов
+                <div className="text-[10px] text-rose-400 font-bold uppercase tracking-wider">
+                  Онлайн со смартфонов • По коду
                 </div>
-                <div className="text-lg font-black text-white">Слова-Мины</div>
-                <div className="text-[11px] text-slate-400">
-                  Тайные ловушки и кнопка «БАХ!»
+                <div className="text-lg font-black text-white">Слова-Мины (Trapwords)</div>
+                <div className="text-xs text-slate-400">
+                  Тайные ловушки, блеф и кнопка «БАХ!»
                 </div>
               </div>
             </div>
-            <span className="text-xl text-slate-500">→</span>
+            <span className="text-xl text-slate-500 pr-1">→</span>
           </button>
 
           {/* Игра 3: МАФИЯ */}
           <button
             onClick={() => setAppMode('mafia')}
-            className="w-full p-4 rounded-2xl bg-gradient-to-br from-purple-950/80 via-slate-900 to-slate-900 border border-purple-500/40 hover:border-purple-400 text-left shadow-lg active:scale-98 transition-all flex items-center justify-between"
+            className="w-full p-4 rounded-3xl bg-gradient-to-br from-purple-950/80 via-slate-900 to-slate-900 border border-purple-500/30 hover:border-purple-400/60 text-left shadow-xl active:scale-98 transition-all flex items-center justify-between"
           >
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-2xl">
+              <div className="w-13 h-13 rounded-2xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center text-2xl shrink-0">
                 🎭
               </div>
               <div>
-                <div className="text-xs text-purple-400 font-bold uppercase tracking-wider">
-                  Оффлайн-ассистент
+                <div className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">
+                  Оффлайн-ассистент ведущего
                 </div>
                 <div className="text-lg font-black text-white">Мафия (Пульт ведущего)</div>
-                <div className="text-[11px] text-slate-400">
-                  Все роли, фолы, таймер и авто-расчет ночи
+                <div className="text-xs text-slate-400">
+                  Все роли, таймер, фолы и авто-расчет ночи
                 </div>
               </div>
             </div>
-            <span className="text-xl text-slate-500">→</span>
+            <span className="text-xl text-slate-500 pr-1">→</span>
           </button>
         </div>
 
-        <footer className="text-center py-4 text-[11px] text-slate-600">
-          Идеально оптимизировано под любой смартфон
+        <footer className="text-center py-2 text-xs text-slate-500">
+          Синхронизация через онлайн-комнаты без установки
         </footer>
       </div>
     );
@@ -289,22 +289,13 @@ export function App() {
     const gamePhase = roomData.game?.phase || 'LOBBY';
 
     return (
-      <div className="relative min-h-screen bg-slate-950">
-        {gamePhase === 'LOBBY' && (
-          <button
-            onClick={handleLeaveRoom}
-            className="fixed top-4 left-4 z-40 p-2 text-xs text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 rounded-xl border border-slate-800 flex items-center gap-1 backdrop-blur-sm transition-all"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Выйти</span>
-          </button>
-        )}
-
+      <div className="relative min-h-[100dvh] bg-slate-950">
         {gamePhase === 'LOBBY' && (
           <LobbyScreen
             roomData={roomData}
             myPlayer={roomData.myPlayer}
             isHost={roomData.isHost}
+            onLeaveRoom={handleLeaveRoom}
           />
         )}
 

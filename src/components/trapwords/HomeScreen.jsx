@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { socket, playerId, getSavedPlayerName, savePlayerName } from '../../utils/socket';
 import { sounds } from '../../utils/soundEffects';
-import { Sparkles, Users, Bomb, Shield, ArrowRight, Play, Dice5 } from 'lucide-react';
+import { Sparkles, Users, Bomb, ArrowRight, Play, ArrowLeft } from 'lucide-react';
 
 export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMessage }) {
   const [playerName, setPlayerName] = useState(getSavedPlayerName() || '');
@@ -39,71 +39,96 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col justify-between p-4 max-w-md mx-auto text-slate-100">
-      {/* Шапка с переключателем режима */}
-      <header className="pt-4 pb-2 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-3">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Party Games Hub • Онлайн со смартфонов</span>
+    <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto px-4 pt-safe pb-safe space-y-4 select-none">
+      {/* Верхняя навигационная панель */}
+      <header className="flex items-center justify-between pb-1">
+        <button
+          onClick={onSelectMafiaMode}
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300 bg-amber-500/10 px-3.5 py-2 rounded-xl border border-amber-500/20 active:scale-95 transition-all"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>В меню хаба</span>
+        </button>
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400 text-xs font-semibold">
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <span>Онлайн-комнаты</span>
         </div>
-
-        <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2 flex items-center justify-center gap-2">
-          <span className="text-rose-500">Слова</span>
-          <span className="text-slate-400">-</span>
-          <span className="text-amber-400">Мины</span>
-          <Bomb className="w-7 h-7 text-rose-500 animate-bounce" />
-        </h1>
-        <p className="text-xs text-slate-400 max-w-xs mx-auto">
-          Командная игра на ассоциации, блеф и секретные ловушки. Без скачиваний — прямо в браузере!
-        </p>
       </header>
+
+      {/* Заголовок игры */}
+      <div className="text-center py-1">
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <span className="text-2xl sm:text-3xl font-black text-rose-500 uppercase tracking-tight">СЛОВА</span>
+          <span className="text-2xl font-bold text-slate-500">-</span>
+          <span className="text-2xl sm:text-3xl font-black text-amber-400 uppercase tracking-tight">МИНЫ</span>
+          <span className="text-2xl sm:text-3xl">💣</span>
+        </div>
+        <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
+          Командная битва на блеф, ассоциации и секретные ловушки со смартфонов!
+        </p>
+      </div>
 
       {/* Ошибка если была */}
       {errorMessage && (
-        <div className="p-3 mb-3 bg-rose-500/20 border border-rose-500/40 rounded-xl text-rose-200 text-xs text-center animate-shake">
+        <div className="p-3 bg-rose-500/20 border border-rose-500/40 rounded-2xl text-rose-200 text-xs text-center font-bold animate-shake">
           {errorMessage}
         </div>
       )}
 
-      {/* Основная карточка входа */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-2xl backdrop-blur-md space-y-4 my-auto">
-        {/* Поле имени игрока */}
-        <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1.5">
-            Ваше имя в игре
-          </label>
-          <input
-            type="text"
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
-            placeholder="Например: Артур, Лиза, Капитан"
-            maxLength={18}
-            className="w-full px-4 py-3 bg-slate-950/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
-          />
-        </div>
+      {/* Блок 1: Имя игрока */}
+      <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-2">
+        <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
+          Ваше имя в игре:
+        </label>
+        <input
+          type="text"
+          value={playerName}
+          onChange={(e) => setPlayerName(e.target.value)}
+          placeholder="Например: Артур, Лиза, Капитан"
+          maxLength={18}
+          className="w-full px-4 py-3.5 bg-slate-950 border border-slate-700/80 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 rounded-2xl text-white placeholder-slate-500 text-base font-semibold transition-all outline-none"
+        />
+      </section>
 
-        {/* Кнопка Создать стол */}
+      {/* Блок 2: Создать новый стол (Хост) */}
+      <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-extrabold text-white flex items-center gap-2">
+            <Play className="w-4 h-4 text-emerald-400" />
+            <span>Вы ведущий вечеринки?</span>
+          </div>
+          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+            Хост
+          </span>
+        </div>
+        <p className="text-xs text-slate-400 leading-relaxed">
+          Создайте новую комнату и получите 4-значный код для ваших друзей.
+        </p>
         <button
           onClick={handleCreateRoom}
-          className="w-full py-3.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-white shadow-lg shadow-rose-950/40 active:scale-98 transition-all"
+          className="w-full py-4 px-4 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-white shadow-xl shadow-rose-950/50 active:scale-98 transition-all"
         >
-          <Play className="w-4 h-4 fill-current" />
-          <span>Создать новый стол</span>
+          <Play className="w-5 h-5 fill-current" />
+          <span>Создать новый стол 🎲</span>
         </button>
+      </section>
 
-        <div className="relative flex py-1 items-center">
-          <div className="flex-grow border-t border-slate-800"></div>
-          <span className="flex-shrink mx-3 text-xs text-slate-500 font-medium uppercase tracking-wider">
-            или войти по коду
+      {/* Блок 3: Войти за существующий стол */}
+      <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-extrabold text-white flex items-center gap-2">
+            <Users className="w-4 h-4 text-sky-400" />
+            <span>Подключение по коду</span>
+          </div>
+          <span className="text-[10px] font-bold text-sky-400 bg-sky-500/10 px-2.5 py-0.5 rounded-full border border-sky-500/20">
+            Игрок
           </span>
-          <div className="flex-grow border-t border-slate-800"></div>
         </div>
 
-        {/* Форма подключения по номеру стола */}
-        <form onSubmit={handleJoinRoom} className="space-y-3">
+        <form onSubmit={handleJoinRoom} className="space-y-3 pt-1">
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              Номер стола (4 цифры)
+            <label className="block text-xs font-bold text-slate-400 mb-1.5">
+              Введите 4 цифры стола:
             </label>
             <input
               type="text"
@@ -111,34 +136,24 @@ export default function HomeScreen({ onSelectMafiaMode, errorMessage, setErrorMe
               pattern="[0-9]*"
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
-              placeholder="Например: 4819"
-              className="w-full px-4 py-3 bg-slate-950/80 border border-slate-700 rounded-xl text-center font-mono text-xl tracking-widest text-amber-300 placeholder-slate-600 focus:outline-none focus:border-amber-400 transition-all"
+              placeholder="4819"
+              className="w-full py-3.5 px-4 bg-slate-950 border-2 border-slate-700/80 focus:border-sky-400 rounded-2xl text-center font-mono text-2xl font-black tracking-widest text-sky-400 placeholder-slate-700 transition-all outline-none"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 px-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 active:scale-98 transition-all"
+            className="w-full py-3.5 px-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-750 text-white border border-slate-700 active:scale-98 transition-all shadow"
           >
             <span>Войти за стол</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
-      </div>
+      </section>
 
-      {/* Нижняя панель: Переход в главное меню */}
-      <footer className="pt-3 pb-2 space-y-2 text-center">
-        <button
-          onClick={onSelectMafiaMode}
-          className="w-full py-2.5 px-3 rounded-xl bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-400 hover:text-slate-200 flex items-center justify-center gap-2 transition-all"
-        >
-          <ArrowRight className="w-3.5 h-3.5 rotate-180 text-amber-400" />
-          <span>← Назад в меню всех игр (Хаб)</span>
-        </button>
-
-        <p className="text-[11px] text-slate-600">
-          Подходит для 4–16 игроков • Смартфон как пульт и карта
-        </p>
+      {/* Подсказка внизу */}
+      <footer className="text-center pt-2 pb-6 text-[11px] text-slate-500">
+        Подходит для 4–16 игроков • Синхронизация в реальном времени
       </footer>
     </div>
   );
