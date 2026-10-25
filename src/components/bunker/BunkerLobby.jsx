@@ -1,8 +1,9 @@
-// src/components/bunker/BunkerLobby.jsx
+// src/components/bunker/BunkerLobby.jsx - Эргономичное мобильное лобби Бункера
 import React, { useState } from 'react';
 import { bunkerSocket } from '../../utils/bunkerSocket';
 import { sounds } from '../../utils/soundEffects';
-import { Users, QrCode, Copy, Check, Play, Crown, ArrowLeft, Clock, Shield } from 'lucide-react';
+import GameHeader from '../common/GameHeader';
+import { Users, QrCode, Copy, Check, Play, Crown, Clock, Shield } from 'lucide-react';
 import QRModal from '../trapwords/QRModal';
 
 export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom }) {
@@ -29,138 +30,158 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
 
   const canStart = players.length >= 3;
 
+  const headerActions = (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={() => setShowQR(true)}
+        className="w-11 h-11 rounded-2xl bg-slate-900 hover:bg-slate-850 active:scale-95 text-amber-400 border border-slate-700/80 flex items-center justify-center transition-all shadow-md touch-manipulation"
+        title="Показать QR-код"
+      >
+        <QrCode className="w-5 h-5" />
+      </button>
+      <button
+        type="button"
+        onClick={copyLink}
+        className="min-h-[44px] px-3.5 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-850 active:scale-95 text-slate-200 border border-slate-700/80 text-xs font-bold flex items-center gap-1.5 transition-all shadow-md touch-manipulation"
+      >
+        {copied ? (
+          <>
+            <Check className="w-4 h-4 text-emerald-400" />
+            <span className="text-emerald-400">Скопировано!</span>
+          </>
+        ) : (
+          <>
+            <Copy className="w-4 h-4 text-slate-400" />
+            <span>Ссылка</span>
+          </>
+        )}
+      </button>
+    </div>
+  );
+
   return (
-    <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto px-4 pt-safe pb-safe space-y-3.5 select-none">
-      {/* Навигация */}
-      <header className="flex items-center justify-between gap-2 pb-0.5">
-        <button
-          onClick={onLeaveRoom}
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl active:scale-95 transition-all shrink-0"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Выйти</span>
-        </button>
+    <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto select-none overflow-y-auto">
+      {/* Крупный эргономичный хедер */}
+      <GameHeader
+        onBack={onLeaveRoom}
+        backLabel="Выйти"
+        title="БУНКЕР"
+        icon="☢️"
+        rightAction={headerActions}
+      />
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowQR(true)}
-            className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-800 transition-all active:scale-95"
-            title="Показать QR-код"
-          >
-            <QrCode className="w-4 h-4" />
-          </button>
-          <button
-            onClick={copyLink}
-            className="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95"
-          >
-            {copied ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Скопировано!</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5 text-slate-400" />
-                <span>Ссылка</span>
-              </>
-            )}
-          </button>
-        </div>
-      </header>
-
-      {/* Карточка убежища */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl flex items-center justify-between">
-        <div>
-          <div className="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
-            <Shield className="w-3.5 h-3.5" />
-            <span>Убежище № {roomCode}</span>
+      <main className="p-4 space-y-4 pb-44">
+        {/* Карточка убежища и код комнаты */}
+        <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-extrabold text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Shield className="w-4 h-4" />
+              <span>Номер убежища:</span>
+            </span>
+            <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
+              {players.length} у входа
+            </span>
           </div>
-          <div className="text-xl font-black text-white mt-0.5">
-            Зона ожидания выживших
+
+          <div className="flex items-center justify-between bg-slate-950/80 border border-slate-800 p-4 rounded-2xl">
+            <div>
+              <div className="text-xs text-slate-400 font-bold">Код для друзей:</div>
+              <div className="text-4xl font-black font-mono tracking-widest text-amber-400">
+                {roomCode}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowQR(true)}
+              className="px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all"
+            >
+              <QrCode className="w-4 h-4" />
+              <span>QR-код</span>
+            </button>
           </div>
         </div>
-        <div className="text-right">
-          <div className="text-[10px] text-slate-400 uppercase font-bold">У дверей</div>
-          <div className="text-lg font-black text-amber-400">{players.length} чел.</div>
-        </div>
-      </div>
 
-      {/* Настройка таймера для хоста */}
-      {isHost && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl space-y-2">
-          <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-amber-400" />
-            <span>Время на речь выжившего:</span>
-          </label>
-          <div className="grid grid-cols-3 gap-2">
-            {[30, 45, 60].map(sec => (
-              <button
-                key={sec}
-                type="button"
-                onClick={() => setSpeakerSeconds(sec)}
-                className={`py-2 rounded-xl text-xs font-bold transition-all border ${
-                  speakerSeconds === sec
-                    ? 'bg-amber-500/20 border-amber-500 text-amber-300'
-                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800'
+        {/* Настройка таймера на выступление (для хоста) */}
+        {isHost && (
+          <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
+            <label className="text-sm font-extrabold text-slate-200 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-amber-400" />
+              <span>Время на речь выжившего в раунде:</span>
+            </label>
+            <div className="grid grid-cols-3 gap-2.5">
+              {[30, 45, 60].map(sec => (
+                <button
+                  key={sec}
+                  type="button"
+                  onClick={() => setSpeakerSeconds(sec)}
+                  className={`min-h-[48px] py-3 rounded-2xl text-sm font-black transition-all border active:scale-95 touch-manipulation ${
+                    speakerSeconds === sec
+                      ? 'bg-amber-500/20 border-amber-500 text-amber-300 shadow-md ring-1 ring-amber-500/40'
+                      : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:bg-slate-850'
+                  }`}
+                >
+                  {sec} сек
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Список собравшихся участников */}
+        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
+          <div className="flex items-center justify-between text-sm font-extrabold text-slate-200">
+            <span>Очередь перед гермодверью ({players.length}):</span>
+            <span className="text-amber-400 text-xs font-bold">
+              {players.length < 3 ? 'Нужно минимум 3 чел.' : 'Готовы к входу'}
+            </span>
+          </div>
+
+          <div className="space-y-2.5 pt-1">
+            {players.map(p => (
+              <div
+                key={p.id}
+                className={`flex items-center justify-between p-4 rounded-2xl text-sm min-h-[54px] transition-all ${
+                  p.id === myPlayer?.id
+                    ? 'bg-amber-500/15 border border-amber-500/40 font-black text-white shadow-md'
+                    : 'bg-slate-950/70 text-slate-200 border border-slate-800'
                 }`}
               >
-                {sec} сек
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Список собравшихся участников */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-2.5">
-        <div className="flex items-center justify-between text-xs font-bold text-slate-300">
-          <span>Очередь перед гермодверью ({players.length}):</span>
-          <span className="text-amber-400 text-[11px]">
-            {players.length < 3 ? 'Нужно минимум 3 человека' : 'Готовы к входу'}
-          </span>
-        </div>
-
-        <div className="space-y-1.5">
-          {players.map(p => (
-            <div
-              key={p.id}
-              className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs ${
-                p.id === myPlayer?.id
-                  ? 'bg-amber-500/15 border border-amber-500/40 font-bold text-white shadow-sm'
-                  : 'bg-slate-950/60 text-slate-300 border border-slate-800/60'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <span className="text-lg">{p.avatar || '🦺'}</span>
-                <span>{p.name}</span>
-                {p.id === myPlayer?.id && (
-                  <span className="text-[10px] text-amber-300 font-semibold">(Вы)</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{p.avatar || '🦺'}</span>
+                  <span className="font-extrabold text-base">{p.name}</span>
+                  {p.id === myPlayer?.id && (
+                    <span className="text-xs text-amber-300 font-bold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+                      Вы
+                    </span>
+                  )}
+                </div>
+                {p.isHost && (
+                  <span className="flex items-center gap-1.5 text-xs text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/20 font-black">
+                    <Crown className="w-3.5 h-3.5" /> Командир
+                  </span>
                 )}
               </div>
-              {p.isHost && (
-                <span className="flex items-center gap-1 text-[10px] text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20 font-bold">
-                  <Crown className="w-3 h-3" /> Командир
-                </span>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
+        </section>
+
+        {/* Информационная плашка о вместимости */}
+        <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-3xl text-xs sm:text-sm text-amber-300/90 leading-relaxed text-center font-medium shadow-md">
+          ⚠️ <strong>Суровое правило бункера:</strong> спастись сможет ровно половина ({Math.max(1, Math.floor(players.length / 2))} из {players.length} человек). Лишние кандидаты изгоняются на тайном голосовании!
         </div>
-      </div>
+      </main>
 
-      {/* Подсказка о вместимости */}
-      <div className="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-xs text-amber-300/90 leading-relaxed text-center">
-        ⚠️ <strong>Суровое правило бункера:</strong> спастись сможет ровно половина ({Math.max(1, Math.floor(players.length / 2))} из {players.length} человек). Остальные будут изгнаны на голосовании!
-      </div>
-
-      {/* Нижняя кнопка */}
-      <footer className="pt-2 pb-6">
+      {/* Фиксированная кнопка запуска внизу экрана с защитой от вырезов */}
+      <footer className="fixed bottom-0 left-0 right-0 p-4 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] bg-slate-950/95 backdrop-blur-2xl border-t border-slate-800/90 z-40 max-w-md mx-auto shadow-2xl">
         {isHost ? (
           <button
+            type="button"
             onClick={handleStartGame}
             disabled={!canStart}
-            className={`w-full py-4 px-4 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+            className={`w-full min-h-[58px] py-4 px-6 rounded-2xl font-black text-base uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all touch-manipulation shadow-2xl ${
               canStart
-                ? 'bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-xl shadow-amber-950/50 active:scale-98'
+                ? 'bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-amber-950/60 active:scale-98'
                 : 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed opacity-60'
             }`}
           >
@@ -168,9 +189,9 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
             <span>{canStart ? 'Объявить катастрофу и войти ☢️' : 'Ожидаем игроков (мин. 3)...'}</span>
           </button>
         ) : (
-          <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-            <span>Ожидаем, пока <strong className="text-amber-400">Командир</strong> запустит игру...</span>
+          <div className="min-h-[56px] p-4 bg-slate-900 border border-slate-800 rounded-2xl text-center text-sm text-slate-300 flex items-center justify-center gap-2.5 font-bold shadow-lg">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+            <span>Ожидаем, пока <strong className="text-amber-400 font-black">Командир</strong> запустит игру...</span>
           </div>
         )}
       </footer>

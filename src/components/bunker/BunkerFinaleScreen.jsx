@@ -1,9 +1,10 @@
-// src/components/bunker/BunkerFinaleScreen.jsx
-import React, { useEffect, useState } from 'react';
+// src/components/bunker/BunkerFinaleScreen.jsx - Эргономичный экран финала Бункера
+import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { bunkerSocket } from '../../utils/bunkerSocket';
 import { sounds } from '../../utils/soundEffects';
-import { Shield, Sparkles, AlertTriangle, CheckCircle2, RotateCcw, Home, Skull, Users } from 'lucide-react';
+import GameHeader from '../common/GameHeader';
+import { Shield, Sparkles, AlertTriangle, RotateCcw, Home } from 'lucide-react';
 
 export default function BunkerFinaleScreen({ roomData, myPlayer, isHost, onExitToHome }) {
   const game = roomData.game || {};
@@ -67,111 +68,115 @@ export default function BunkerFinaleScreen({ roomData, myPlayer, isHost, onExitT
   };
 
   return (
-    <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto px-4 pt-safe pb-safe space-y-4 select-none">
-      {/* Шапка триумфа */}
-      <header className="text-center py-2 space-y-2">
-        <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-2xl shadow-amber-500/30 flex items-center justify-center">
-          <div className="w-full h-full bg-slate-900 rounded-[22px] flex items-center justify-center text-4xl">
-            {isCompleteSuccess ? '🏆' : '☣️'}
+    <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto select-none overflow-y-auto">
+      {/* Универсальный крупный мобильный хедер */}
+      <GameHeader
+        onBack={onExitToHome}
+        backLabel="В меню"
+        title="ФИНАЛ"
+        icon="🏆"
+        badge={isCompleteSuccess ? 'Победа' : 'Выживание'}
+      />
+
+      <main className="p-4 space-y-4 pb-44">
+        {/* Шапка триумфа */}
+        <header className="text-center py-2 space-y-2">
+          <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-amber-500 to-yellow-400 p-0.5 shadow-2xl shadow-amber-500/30 flex items-center justify-center">
+            <div className="w-full h-full bg-slate-900 rounded-[22px] flex items-center justify-center text-5xl">
+              {isCompleteSuccess ? '🏆' : '☣️'}
+            </div>
           </div>
-        </div>
 
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-widest">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Гермодвери запечатаны</span>
-        </div>
+          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-black uppercase tracking-widest">
+            <Sparkles className="w-4 h-4" />
+            <span>Гермодвери запечатаны</span>
+          </div>
 
-        <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
-          {isCompleteSuccess ? 'Бункер выжил и возродил мир!' : 'Борьба за выживание продолжается'}
-        </h1>
+          <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+            {isCompleteSuccess ? 'Бункер выжил и возродил мир!' : 'Борьба за выживание продолжается'}
+          </h1>
 
-        <p className="text-xs text-slate-300 max-w-xs mx-auto leading-relaxed">
-          {isSurvivor
-            ? 'Поздравляем! Вы пробились через отбор и вошли в число избранных!'
-            : 'Вы остались снаружи, но ваша жертва дала человечеству шанс на спасение.'}
-        </p>
-      </header>
+          <p className="text-sm text-slate-300 max-w-xs mx-auto leading-relaxed font-medium">
+            {isSurvivor
+              ? 'Поздравляем! Вы прошли через строгий отбор и заняли спасительное место в убежище!'
+              : 'Вы остались снаружи, но ваша жертва позволила укомплектовать убежище нужными кадрами.'}
+          </p>
+        </header>
 
-      {/* Команда выживших внутри бункера */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-2.5">
-        <div className="text-xs font-extrabold text-emerald-400 flex items-center gap-1.5">
-          <Shield className="w-4 h-4" />
-          <span>Состав убежища ({survivors.length} чел.):</span>
-        </div>
+        {/* Команда выживших внутри бункера */}
+        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
+          <div className="text-sm font-black text-emerald-400 flex items-center gap-2">
+            <Shield className="w-5 h-5" />
+            <span>Состав убежища ({survivors.length} чел.):</span>
+          </div>
 
-        <div className="space-y-1.5">
-          {survivors.map(p => (
-            <div
-              key={p.id}
-              className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-xs"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-base">{p.avatar || '🦺'}</span>
-                <span className="font-bold text-white">{p.name}</span>
-                {p.id === myPlayer?.id && (
-                  <span className="text-[10px] text-amber-400">(Вы)</span>
-                )}
+          <div className="space-y-2">
+            {survivors.map(p => (
+              <div
+                key={p.id}
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 text-sm"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="text-2xl">{p.avatar || '🦺'}</span>
+                  <span className="font-extrabold text-white">{p.name}</span>
+                  {p.id === myPlayer?.id && (
+                    <span className="text-xs text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">(Вы)</span>
+                  )}
+                </div>
+                <span className="text-slate-400 text-xs font-bold">
+                  {p.character?.profession?.name || 'Выживший'}
+                </span>
               </div>
-              <span className="text-slate-400 text-[11px] font-medium">
-                {p.character?.profession?.name || 'Выживший'}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </section>
 
-      {/* Проверка угроз финала */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-3">
-        <div className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-          <AlertTriangle className="w-4 h-4 text-amber-400" />
-          <span>Испытания бункера ({totalOvercome} из {threats.length} отражено):</span>
-        </div>
+        {/* Проверка угроз финала */}
+        <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
+          <div className="text-sm font-black text-slate-200 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-amber-400" />
+            <span>Испытания бункера ({totalOvercome} из {threats.length} отражено):</span>
+          </div>
 
-        <div className="space-y-2">
-          {threatOutcomes.map(threat => (
-            <div
-              key={threat.id}
-              className={`p-3 rounded-2xl border text-xs space-y-1 ${
-                threat.isOvercome
-                  ? 'bg-emerald-950/20 border-emerald-500/40 text-emerald-200'
-                  : 'bg-rose-950/20 border-rose-500/40 text-rose-200'
-              }`}
-            >
-              <div className="flex items-center justify-between font-bold">
-                <span>{threat.title}</span>
-                <span>{threat.isOvercome ? '✅ Отражена' : '❌ Провал'}</span>
+          <div className="space-y-2.5">
+            {threatOutcomes.map(threat => (
+              <div
+                key={threat.id}
+                className={`p-4 rounded-2xl border text-sm space-y-1.5 ${
+                  threat.isOvercome
+                    ? 'bg-emerald-950/20 border-emerald-500/40 text-emerald-200'
+                    : 'bg-rose-950/20 border-rose-500/40 text-rose-200'
+                }`}
+              >
+                <div className="flex items-center justify-between font-black">
+                  <span>{threat.title}</span>
+                  <span>{threat.isOvercome ? '✅ Отражена' : '❌ Провал'}</span>
+                </div>
+                <p className="text-xs opacity-85 leading-relaxed font-medium">
+                  {threat.reason}
+                </p>
               </div>
-              <p className="text-[11px] opacity-80 leading-snug">
-                {threat.reason}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </section>
+      </main>
 
-      {/* Кнопки */}
-      <footer className="space-y-2.5 pt-2 pb-6">
+      {/* Нижняя панель действий */}
+      <footer className="fixed bottom-0 left-0 right-0 p-4 pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] bg-slate-950/95 backdrop-blur-2xl border-t border-slate-800/90 z-40 max-w-md mx-auto shadow-2xl space-y-2.5">
         {isHost ? (
           <button
+            type="button"
             onClick={handleRematch}
-            className="w-full py-4 px-4 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-xl shadow-amber-950/50 active:scale-98 transition-all"
+            className="w-full min-h-[58px] py-4 px-6 rounded-2xl font-black text-base uppercase tracking-wider flex items-center justify-center gap-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-2xl shadow-amber-950/60 active:scale-98 transition-all touch-manipulation"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-5 h-5" />
             <span>Сыграть новую партию (Реванш)</span>
           </button>
         ) : (
-          <div className="p-3 bg-slate-900 border border-slate-800 rounded-2xl text-center text-xs text-slate-400">
+          <div className="min-h-[56px] p-4 bg-slate-900 border border-slate-800 rounded-2xl text-center text-sm text-slate-300 flex items-center justify-center font-bold shadow-lg">
             Ожидаем, пока командир запустит новую партию...
           </div>
         )}
-
-        <button
-          onClick={onExitToHome}
-          className="w-full py-3 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-bold text-slate-400 hover:text-white flex items-center justify-center gap-1.5 transition-all"
-        >
-          <Home className="w-4 h-4" />
-          <span>Выйти в главное меню</span>
-        </button>
       </footer>
     </div>
   );
