@@ -24,10 +24,17 @@ export function savePlayerName(name) {
   }
 }
 
-// Подключаемся к текущему хосту (через Vite-прокси на порту 5173, чтобы требовался только один порт!)
-export const socket = io(window.location.origin, {
+// Определение адреса сервера: из переменной окружения VITE_BACKEND_URL или локально
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? window.location.origin
+    : 'https://compgame-server.onrender.com'
+);
+
+export const socket = io(BACKEND_URL, {
   autoConnect: true,
   reconnection: true,
-  reconnectionAttempts: 20,
-  reconnectionDelay: 1000
+  reconnectionAttempts: 25,
+  reconnectionDelay: 1000,
+  transports: ['websocket', 'polling']
 });
