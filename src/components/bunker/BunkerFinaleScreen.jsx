@@ -71,7 +71,7 @@ export default function BunkerFinaleScreen({ roomData, myPlayer, isHost, onExitT
     <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-lg w-full mx-auto select-none overflow-y-auto">
       {/* Универсальный крупный мобильный хедер */}
       <GameHeader
-        onBack={onExitToHome}
+        onBack={() => onExitToHome?.(isHost)}
         backLabel="В меню"
         title="ФИНАЛ"
         icon="🏆"

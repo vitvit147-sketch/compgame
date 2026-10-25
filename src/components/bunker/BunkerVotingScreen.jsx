@@ -2,10 +2,12 @@
 import React, { useState } from 'react';
 import { bunkerSocket } from '../../utils/bunkerSocket';
 import { sounds } from '../../utils/soundEffects';
-import { Vote, Skull, Check, ArrowRight, ShieldAlert, Users } from 'lucide-react';
+import ExitConfirmModal from '../common/ExitConfirmModal';
+import { Vote, Skull, Check, ArrowRight, ShieldAlert, Users, LogOut } from 'lucide-react';
 
-export default function BunkerVotingScreen({ roomData, myPlayer, isHost }) {
+export default function BunkerVotingScreen({ roomData, myPlayer, isHost, onLeaveRoom }) {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [showExitModal, setShowExitModal] = useState(false);
 
   const game = roomData.game || {};
   const players = roomData.players || [];
@@ -39,9 +41,20 @@ export default function BunkerVotingScreen({ roomData, myPlayer, isHost }) {
     <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto select-none overflow-y-auto">
       {/* Шапка голосования */}
       <header className="sticky top-0 z-30 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top,0px))] flex items-center justify-between shadow-md">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 text-xs font-black uppercase tracking-wider">
-          <Vote className="w-4 h-4" />
-          <span>{votesRevealed ? 'Итоги голосования' : 'Тайное голосование'}</span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowExitModal(true)}
+            className="min-h-[38px] px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-750 hover:bg-rose-950/50 hover:border-rose-500/50 text-slate-400 hover:text-rose-300 flex items-center gap-1 text-xs font-black transition-colors active:scale-95 touch-manipulation"
+            title="Покинуть игру"
+          >
+            <LogOut className="w-3.5 h-3.5 text-rose-400" />
+            <span>Выход</span>
+          </button>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 text-xs font-black uppercase tracking-wider">
+            <Vote className="w-3.5 h-3.5" />
+            <span>{votesRevealed ? 'Итоги' : 'Голосование'}</span>
+          </div>
         </div>
         <span className="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
           Убежище № {roomData.code}
@@ -208,6 +221,18 @@ export default function BunkerVotingScreen({ roomData, myPlayer, isHost }) {
           )
         )}
       </footer>
+
+      {/* Защищенное модальное окно выхода */}
+      <ExitConfirmModal
+        isOpen={showExitModal}
+        onClose={() => setShowExitModal(false)}
+        onConfirm={() => onLeaveRoom?.(isHost)}
+        isHost={isHost}
+        customTitle={isHost ? 'Закрыть убежище для всех?' : 'Покинуть голосование?'}
+        customDesc={isHost
+          ? 'Вы командир убежища (хост). Если вы закроете убежище, игра завершится для всех игроков.'
+          : 'Вы выйдете из бункера в главное меню. Ваш голос в текущем раунде не будет учтен.'}
+      />
     </div>
   );
 }

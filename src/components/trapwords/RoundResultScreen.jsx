@@ -1,11 +1,13 @@
 // src/components/trapwords/RoundResultScreen.jsx
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { socket } from '../../utils/socket';
 import { sounds } from '../../utils/soundEffects';
-import { Bomb, CheckCircle2, Clock, Play, Trophy, Sparkles, XCircle } from 'lucide-react';
+import ExitConfirmModal from '../common/ExitConfirmModal';
+import { Bomb, CheckCircle2, Clock, Play, Trophy, Sparkles, XCircle, LogOut } from 'lucide-react';
 
-export default function RoundResultScreen({ roomData, myPlayer, isHost }) {
+export default function RoundResultScreen({ roomData, myPlayer, isHost, onLeaveRoom }) {
+  const [showExitModal, setShowExitModal] = useState(false);
   const game = roomData.game || {};
   const result = game.roundResult || {};
   const isTrapDetonated = result.outcome === 'TRAP_TRIGGERED';
@@ -31,10 +33,22 @@ export default function RoundResultScreen({ roomData, myPlayer, isHost }) {
 
   return (
     <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto px-4 pt-safe pb-safe space-y-4 select-none">
-      {/* Шапка счета */}
-      <header className="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl text-center">
-        <div className="text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wider">
-          Счет после {game.round} раунда (игра до {game.targetScore})
+      {/* Шапка счета с кнопкой выхода */}
+      <header className="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 shadow-xl">
+        <div className="flex items-center justify-between mb-2">
+          <button
+            type="button"
+            onClick={() => setShowExitModal(true)}
+            className="min-h-[34px] px-2.5 py-1 rounded-xl bg-slate-800/80 border border-slate-750 hover:bg-rose-950/50 hover:border-rose-500/50 text-slate-400 hover:text-rose-300 flex items-center gap-1 text-xs font-black transition-colors active:scale-95 touch-manipulation"
+            title="Покинуть игру"
+          >
+            <LogOut className="w-3.5 h-3.5 text-rose-400" />
+            <span>Выход</span>
+          </button>
+          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            Раунд {game.round} (до {game.targetScore})
+          </div>
+          <div className="w-14"></div>
         </div>
         <div className="flex items-center justify-center gap-8">
           <div className="text-center">
@@ -172,6 +186,18 @@ export default function RoundResultScreen({ roomData, myPlayer, isHost }) {
           </div>
         )}
       </footer>
+
+      {/* Защищенное модальное окно выхода */}
+      <ExitConfirmModal
+        isOpen={showExitModal}
+        onClose={() => setShowExitModal(false)}
+        onConfirm={() => onLeaveRoom?.(isHost)}
+        isHost={isHost}
+        customTitle={isHost ? 'Закрыть комнату для всех?' : 'Покинуть игру?'}
+        customDesc={isHost
+          ? 'Вы организатор (хост). Если вы закроете комнату, игра завершится для обеих команд.'
+          : 'Вы покинете комнату и вернетесь в главное меню.'}
+      />
     </div>
   );
 }

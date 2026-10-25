@@ -94,7 +94,7 @@ export default function GameOverScreen({ roomData, myPlayer, isHost, onExitToHom
         )}
 
         <button
-          onClick={onExitToHome}
+          onClick={() => onExitToHome?.(isHost)}
           className="w-full py-3.5 px-4 rounded-2xl bg-slate-900 hover:bg-slate-850 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition-all active:scale-98"
         >
           <Home className="w-4 h-4" />

@@ -21,6 +21,7 @@ import { VictoryModal } from './components/VictoryModal';
 import { resolveNight, checkWinCondition } from './utils/gameEngine';
 import { ArrowLeft, Sparkles, Shield, Bomb, Radio, ChevronRight } from 'lucide-react';
 import GameHeader from './components/common/GameHeader';
+import ExitConfirmModal from './components/common/ExitConfirmModal';
 
 // Компоненты Бункера онлайн
 import { bunkerSocket, bunkerPlayerId } from './utils/bunkerSocket';
@@ -37,6 +38,8 @@ export function App() {
   const [appMode, setAppMode] = useState('menu');
   const [roomData, setRoomData] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showMafiaExitModal, setShowMafiaExitModal] = useState(false);
+  const [mafiaExitAction, setMafiaExitAction] = useState('menu'); // 'menu' | 'reset'
 
   // -------------------------------------------------------------
   // ЛОГИКА СОКЕТОВ ДЛЯ БУНКЕРА ОНЛАЙН
@@ -76,6 +79,11 @@ export function App() {
     const onBunkerReconnectFailed = () => {
       sessionStorage.removeItem('current_bunker_room_code');
       setBunkerRoomData(null);
+      try {
+        if (window.history && window.location.search) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } catch (e) {}
     };
 
     bunkerSocket.on('room_created', onBunkerRoomCreated);
@@ -98,10 +106,16 @@ export function App() {
     };
   }, []);
 
-  const handleLeaveBunkerRoom = () => {
+  const handleLeaveBunkerRoom = (isHost = false) => {
+    bunkerSocket.leaveRoom(isHost);
     sessionStorage.removeItem('current_bunker_room_code');
     setBunkerRoomData(null);
     setBunkerErrorMessage('');
+    try {
+      if (window.history && window.location.search) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } catch (e) {}
   };
 
   // -------------------------------------------------------------
@@ -132,6 +146,11 @@ export function App() {
     const onReconnectFailed = () => {
       sessionStorage.removeItem('current_room_code');
       setRoomData(null);
+      try {
+        if (window.history && window.location.search) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } catch (e) {}
     };
 
     socket.on('room_created', onRoomCreated);
@@ -154,10 +173,16 @@ export function App() {
     };
   }, []);
 
-  const handleLeaveRoom = () => {
+  const handleLeaveRoom = (isHost = false) => {
+    socket.leaveRoom(isHost);
     sessionStorage.removeItem('current_room_code');
     setRoomData(null);
     setErrorMessage('');
+    try {
+      if (window.history && window.location.search) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } catch (e) {}
   };
 
   // -------------------------------------------------------------
@@ -244,13 +269,29 @@ export function App() {
     addLog('Финал игры', win.reason);
   };
 
+  const handleConfirmMafiaExit = () => {
+    setShowMafiaExitModal(false);
+    setGameState({ phase: 'setup', round: 1 });
+    setPlayers([]);
+    setNightResult(null);
+    setVictoryInfo(null);
+    setGameLogs([]);
+    if (mafiaExitAction === 'menu') {
+      setAppMode('menu');
+    }
+  };
+
   const handleResetMafia = () => {
-    if (window.confirm('Вы уверены, что хотите сбросить текущую партию в Мафию?')) {
-      setGameState({ phase: 'setup', round: 1 });
-      setPlayers([]);
-      setNightResult(null);
-      setVictoryInfo(null);
-      setGameLogs([]);
+    setMafiaExitAction('reset');
+    setShowMafiaExitModal(true);
+  };
+
+  const handleMafiaBack = () => {
+    if (gameState.phase === 'setup') {
+      setAppMode('menu');
+    } else {
+      setMafiaExitAction('menu');
+      setShowMafiaExitModal(true);
     }
   };
 
@@ -428,6 +469,7 @@ export function App() {
             roomData={roomData}
             myPlayer={roomData.myPlayer}
             isHost={roomData.isHost}
+            onLeaveRoom={handleLeaveRoom}
           />
         )}
 
@@ -436,6 +478,7 @@ export function App() {
             roomData={roomData}
             myPlayer={roomData.myPlayer}
             isHost={roomData.isHost}
+            onLeaveRoom={handleLeaveRoom}
           />
         )}
 
@@ -444,6 +487,7 @@ export function App() {
             roomData={roomData}
             myPlayer={roomData.myPlayer}
             isHost={roomData.isHost}
+            onLeaveRoom={handleLeaveRoom}
           />
         )}
 
@@ -491,6 +535,7 @@ export function App() {
             roomData={bunkerRoomData}
             myPlayer={bunkerRoomData.myPlayer}
             isHost={bunkerRoomData.isHost}
+            onLeaveRoom={handleLeaveBunkerRoom}
           />
         )}
 
@@ -499,6 +544,7 @@ export function App() {
             roomData={bunkerRoomData}
             myPlayer={bunkerRoomData.myPlayer}
             isHost={bunkerRoomData.isHost}
+            onLeaveRoom={handleLeaveBunkerRoom}
           />
         )}
 
@@ -507,6 +553,7 @@ export function App() {
             roomData={bunkerRoomData}
             myPlayer={bunkerRoomData.myPlayer}
             isHost={bunkerRoomData.isHost}
+            onLeaveRoom={handleLeaveBunkerRoom}
           />
         )}
 
@@ -528,7 +575,7 @@ export function App() {
   return (
     <div className="app-container">
       <GameHeader
-        onBack={() => setAppMode('menu')}
+        onBack={handleMafiaBack}
         backLabel="В меню"
         title="МАФИЯ"
         icon="🎭"
@@ -601,6 +648,16 @@ export function App() {
           setVictoryInfo(null);
           setGameState({ phase: 'setup', round: 1 });
         }}
+      />
+
+      {/* Защита от случайного сброса Мафии (двойное подтверждение) */}
+      <ExitConfirmModal
+        isOpen={showMafiaExitModal}
+        onClose={() => setShowMafiaExitModal(false)}
+        onConfirm={handleConfirmMafiaExit}
+        isHost={true}
+        customTitle={mafiaExitAction === 'menu' ? 'Выйти в главное меню?' : 'Сбросить текущую партию?'}
+        customDesc="Текущая рассадка, ночные действия и роли игроков будут сброшены. Чтобы подтвердить выход, нажмите кнопку еще раз."
       />
     </div>
   );

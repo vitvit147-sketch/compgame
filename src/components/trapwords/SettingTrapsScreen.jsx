@@ -1,10 +1,12 @@
 // src/components/trapwords/SettingTrapsScreen.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { socket } from '../../utils/socket';
 import { sounds } from '../../utils/soundEffects';
-import { Bomb, Shield, Clock, Lightbulb, CheckCircle2, UserCheck, Flame } from 'lucide-react';
+import ExitConfirmModal from '../common/ExitConfirmModal';
+import { Bomb, Shield, Clock, Lightbulb, CheckCircle2, UserCheck, Flame, LogOut } from 'lucide-react';
 
-export default function SettingTrapsScreen({ roomData, myPlayer }) {
+export default function SettingTrapsScreen({ roomData, myPlayer, isHost, onLeaveRoom }) {
+  const [showExitModal, setShowExitModal] = useState(false);
   const game = roomData.game || {};
   const isMyTeamTrapping = game.isMyTeamTrapping;
   const isMyTeamExplaining = game.isMyTeamExplaining;
@@ -33,25 +35,36 @@ export default function SettingTrapsScreen({ roomData, myPlayer }) {
 
   return (
     <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto px-4 pt-safe pb-safe space-y-3.5 select-none">
-      {/* Шапка раунда и счета */}
-      <header className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex items-center justify-between">
-        <div>
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Раунд {game.round} • Минирование
-          </div>
-          <div className="flex items-center gap-2 mt-0.5 font-black text-sm">
-            <span className="text-rose-400">🔴 {game.scores.red}</span>
-            <span className="text-slate-600">:</span>
-            <span className="text-sky-400">🔵 {game.scores.blue}</span>
-            <span className="text-[10px] text-slate-500 font-normal">
-              (до {game.targetScore})
-            </span>
+      {/* Шапка раунда и счета с кнопкой выхода */}
+      <header className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 shadow-xl flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <button
+            type="button"
+            onClick={() => setShowExitModal(true)}
+            className="min-h-[36px] px-2.5 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 hover:bg-rose-950/50 hover:border-rose-500/50 text-slate-400 hover:text-rose-300 flex items-center gap-1 text-xs font-black transition-colors active:scale-95 touch-manipulation shrink-0"
+            title="Покинуть игру"
+          >
+            <LogOut className="w-3.5 h-3.5 text-rose-400" />
+            <span className="hidden xs:inline">Выход</span>
+          </button>
+          <div className="min-w-0">
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              Раунд {game.round} • Минирование
+            </div>
+            <div className="flex items-center gap-2 mt-0.5 font-black text-sm">
+              <span className="text-rose-400">🔴 {game.scores.red}</span>
+              <span className="text-slate-600">:</span>
+              <span className="text-sky-400">🔵 {game.scores.blue}</span>
+              <span className="text-[10px] text-slate-500 font-normal">
+                (до {game.targetScore})
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Таймер */}
         <div
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-mono font-bold text-sm border ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-mono font-bold text-sm border shrink-0 ${
             game.timer <= 10
               ? 'bg-rose-500/20 border-rose-500/50 text-rose-300 animate-pulse'
               : 'bg-slate-800 border-slate-700 text-amber-300'
@@ -176,6 +189,18 @@ export default function SettingTrapsScreen({ roomData, myPlayer }) {
       <footer className="text-center pt-2 pb-6 text-xs text-slate-500">
         Слова-мины • Соперники расставляют скрытые ловушки
       </footer>
+
+      {/* Защищенное модальное окно выхода */}
+      <ExitConfirmModal
+        isOpen={showExitModal}
+        onClose={() => setShowExitModal(false)}
+        onConfirm={() => onLeaveRoom?.(isHost)}
+        isHost={isHost}
+        customTitle={isHost ? 'Закрыть комнату для всех?' : 'Покинуть игру?'}
+        customDesc={isHost
+          ? 'Вы организатор (хост). Если вы закроете комнату, матч будет завершен для обеих команд.'
+          : 'Вы покинете команду и вернетесь в главное меню. Счет и прогресс раунда будут сброшены.'}
+      />
     </div>
   );
 }

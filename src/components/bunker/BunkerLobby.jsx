@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import { bunkerSocket } from '../../utils/bunkerSocket';
 import { sounds } from '../../utils/soundEffects';
 import GameHeader from '../common/GameHeader';
-import { Users, QrCode, Copy, Check, Play, Crown, Clock, Shield } from 'lucide-react';
+import { Users, QrCode, Copy, Check, Play, Crown, Clock, Shield, LogOut } from 'lucide-react';
 import QRModal from '../trapwords/QRModal';
+import ExitConfirmModal from '../common/ExitConfirmModal';
 
 export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom }) {
   const [showQR, setShowQR] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
   const [speakerSeconds, setSpeakerSeconds] = useState(45);
 
   const roomCode = roomData.code;
@@ -26,6 +28,11 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
   const handleStartGame = () => {
     sounds.playTap();
     bunkerSocket.emit('start_game', { speakerSeconds });
+  };
+
+  const handleConfirmExit = () => {
+    setShowExitModal(false);
+    onLeaveRoom?.(isHost);
   };
 
   const canStart = players.length >= 3;
@@ -62,10 +69,10 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
 
   return (
     <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-lg w-full mx-auto select-none overflow-y-auto">
-      {/* Крупный эргономичный хедер */}
+      {/* Крупный эргономичный хедер с защищенной кнопкой выхода */}
       <GameHeader
-        onBack={onLeaveRoom}
-        backLabel="Выйти"
+        onBack={() => setShowExitModal(true)}
+        backLabel={isHost ? "Закрыть комнату" : "Выйти"}
         title="БУНКЕР"
         icon="☢️"
         rightAction={headerActions}
@@ -172,6 +179,18 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
         <div className="p-5 bg-amber-500/10 border border-amber-500/20 rounded-3xl text-sm text-amber-300/90 leading-relaxed text-center font-medium shadow-md">
           ⚠️ <strong>Суровое правило бункера:</strong> спастись сможет ровно половина ({Math.max(1, Math.floor(players.length / 2))} из {players.length} человек). Лишние кандидаты изгоняются на тайном голосовании!
         </div>
+
+        {/* Кнопка выхода / закрытия лобби */}
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={() => setShowExitModal(true)}
+            className="w-full min-h-[50px] py-3 px-4 rounded-2xl bg-rose-950/40 hover:bg-rose-950/70 border border-rose-500/40 text-rose-300 font-extrabold text-sm flex items-center justify-center gap-2 active:scale-98 transition-all touch-manipulation"
+          >
+            <LogOut className="w-4 h-4 text-rose-400" />
+            <span>{isHost ? 'Закрыть и распустить убежище' : 'Покинуть убежище'}</span>
+          </button>
+        </div>
       </main>
 
       {/* Фиксированная кнопка запуска внизу экрана с защитой от вырезов */}
@@ -199,6 +218,14 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
       </footer>
 
       {showQR && <QRModal roomCode={roomCode} onClose={() => setShowQR(false)} />}
+
+      {/* Модальное окно защищенного выхода */}
+      <ExitConfirmModal
+        isOpen={showExitModal}
+        onClose={() => setShowExitModal(false)}
+        onConfirm={handleConfirmExit}
+        isHost={isHost}
+      />
     </div>
   );
 }

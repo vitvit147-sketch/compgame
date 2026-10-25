@@ -102,6 +102,26 @@ class BunkerSocketAdapter {
     this.roomRef = null;
   }
 
+  leaveRoom(isHost = false) {
+    const code = this.currentRoomCode;
+    const pId = bunkerPlayerId;
+    this._stopListening();
+
+    if (code) {
+      if (isHost) {
+        // Хост закрывает и удаляет комнату для всех
+        remove(ref(database, `bunker_rooms/${code}`)).catch(err => {
+          console.error('Error removing bunker room:', err);
+        });
+      } else {
+        // Обычный игрок покидает состав комнаты
+        remove(ref(database, `bunker_rooms/${code}/players/${pId}`)).catch(err => {
+          console.error('Error removing player from bunker room:', err);
+        });
+      }
+    }
+  }
+
   _handleRoomUpdate(roomRaw) {
     const playersObj = roomRaw.players || {};
     const playersList = Object.values(playersObj);
@@ -443,6 +463,16 @@ class BunkerSocketAdapter {
             exiledCount: 0
           }
         });
+        break;
+      }
+
+      case 'leave_room': {
+        this.leaveRoom(false);
+        break;
+      }
+
+      case 'close_room': {
+        this.leaveRoom(true);
         break;
       }
 

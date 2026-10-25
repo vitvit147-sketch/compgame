@@ -1,10 +1,12 @@
 // src/components/trapwords/ExplainingScreen.jsx
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { socket } from '../../utils/socket';
 import { sounds } from '../../utils/soundEffects';
-import { Clock, Bomb, CheckCircle2, Flag, Mic, Volume2, AlertTriangle } from 'lucide-react';
+import ExitConfirmModal from '../common/ExitConfirmModal';
+import { Clock, Bomb, CheckCircle2, Flag, Mic, Volume2, AlertTriangle, LogOut } from 'lucide-react';
 
-export default function ExplainingScreen({ roomData, myPlayer }) {
+export default function ExplainingScreen({ roomData, myPlayer, isHost, onLeaveRoom }) {
+  const [showExitModal, setShowExitModal] = useState(false);
   const game = roomData.game || {};
   const isSpeaker = game.isMyTurnToExplain;
   const isMyTeamExplaining = game.isMyTeamExplaining;
@@ -43,24 +45,37 @@ export default function ExplainingScreen({ roomData, myPlayer }) {
 
   return (
     <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto px-4 pt-safe pb-safe space-y-4 select-none">
-      {/* Шапка раунда и счет */}
-      <header className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 shadow-xl flex items-center justify-between">
-        <div>
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Раунд {game.round} • Объяснение
-          </div>
-          <div className="flex items-center gap-2 mt-0.5 font-black text-sm">
-            <span className="text-rose-400">🔴 {game.scores.red}</span>
-            <span className="text-slate-600">:</span>
-            <span className="text-sky-400">🔵 {game.scores.blue}</span>
-            <span className="text-[10px] text-slate-500 font-normal">
-              (до {game.targetScore})
-            </span>
+      {/* Шапка раунда и счет с кнопкой выхода */}
+      <header className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 shadow-xl flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <button
+            type="button"
+            onClick={() => setShowExitModal(true)}
+            className="min-h-[36px] px-2.5 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 hover:bg-rose-950/50 hover:border-rose-500/50 text-slate-400 hover:text-rose-300 flex items-center gap-1 text-xs font-black transition-colors active:scale-95 touch-manipulation shrink-0"
+            title="Покинуть игру"
+          >
+            <LogOut className="w-3.5 h-3.5 text-rose-400" />
+            <span className="hidden xs:inline">Выход</span>
+          </button>
+          <div className="min-w-0">
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              Раунд {game.round} • Объяснение
+            </div>
+            <div className="flex items-center gap-2 mt-0.5 font-black text-sm">
+              <span className="text-rose-400">🔴 {game.scores.red}</span>
+              <span className="text-slate-600">:</span>
+              <span className="text-sky-400">🔵 {game.scores.blue}</span>
+              <span className="text-[10px] text-slate-500 font-normal">
+                (до {game.targetScore})
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Большой таймер */}
-        <div className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-mono font-black text-base border transition-all ${timerColor}`}>
+        {/* Таймер */}
+        <div
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-mono font-bold text-sm border shrink-0 ${timerColor}`}
+        >
           <Clock className="w-4 h-4" />
           <span>{game.timer}с</span>
         </div>
@@ -179,6 +194,18 @@ export default function ExplainingScreen({ roomData, myPlayer }) {
       <footer className="pt-2 pb-6 text-center text-xs text-slate-500">
         Объясняет {explainingTeamName} команда • Соперники слушают в оба уха
       </footer>
+
+      {/* Защищенное модальное окно выхода */}
+      <ExitConfirmModal
+        isOpen={showExitModal}
+        onClose={() => setShowExitModal(false)}
+        onConfirm={() => onLeaveRoom?.(isHost)}
+        isHost={isHost}
+        customTitle={isHost ? 'Закрыть комнату для всех?' : 'Покинуть игру?'}
+        customDesc={isHost
+          ? 'Вы организатор (хост). Если вы выйдете, матч завершится для всех игроков.'
+          : 'Вы покинете команду и вернетесь в главное меню.'}
+      />
     </div>
   );
 }

@@ -114,6 +114,24 @@ class FirebaseSocketAdapter {
     this.roomRef = null;
   }
 
+  leaveRoom(isHost = false) {
+    const code = this.currentRoomCode;
+    const pId = playerId;
+    this._stopListeningToRoom();
+
+    if (code) {
+      if (isHost) {
+        remove(ref(database, `rooms/${code}`)).catch(err => {
+          console.error('Error removing party room:', err);
+        });
+      } else {
+        remove(ref(database, `rooms/${code}/players/${pId}`)).catch(err => {
+          console.error('Error removing player from party room:', err);
+        });
+      }
+    }
+  }
+
   // --------------------------------------------------------------------------
   // ОБРАБОТКА ОБНОВЛЕНИЯ КОМНАТЫ И МАСКИРОВКА ДАННЫХ
   // --------------------------------------------------------------------------
@@ -621,6 +639,17 @@ class FirebaseSocketAdapter {
         roundResult: null,
         winner: null
       });
+      return;
+    }
+
+    // 17. Выход / Закрытие комнаты
+    if (event === 'leave_room') {
+      this.leaveRoom(false);
+      return;
+    }
+
+    if (event === 'close_room') {
+      this.leaveRoom(true);
       return;
     }
   }

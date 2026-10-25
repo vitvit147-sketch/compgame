@@ -11,14 +11,17 @@ import {
   Shuffle,
   Play,
   Crown,
-  Sliders
+  Sliders,
+  LogOut
 } from 'lucide-react';
 import QRModal from './QRModal';
+import ExitConfirmModal from '../common/ExitConfirmModal';
 
 export default function LobbyScreen({ roomData, myPlayer, isHost, onLeaveRoom }) {
   const [showQR, setShowQR] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
 
   const roomCode = roomData.code;
   const game = roomData.game || {};
@@ -34,6 +37,11 @@ export default function LobbyScreen({ roomData, myPlayer, isHost, onLeaveRoom })
     setCopied(true);
     sounds.playTap();
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleConfirmExit = () => {
+    setShowExitModal(false);
+    onLeaveRoom?.(isHost);
   };
 
   const handleJoinTeam = (team) => {
@@ -101,10 +109,10 @@ export default function LobbyScreen({ roomData, myPlayer, isHost, onLeaveRoom })
 
   return (
     <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-lg w-full mx-auto select-none overflow-y-auto">
-      {/* Крупный эргономичный хедер */}
+      {/* Крупный эргономичный хедер с защищенной кнопкой выхода */}
       <GameHeader
-        onBack={onLeaveRoom}
-        backLabel="Выйти"
+        onBack={() => setShowExitModal(true)}
+        backLabel={isHost ? "Закрыть стол" : "Выйти"}
         title="СЛОВА-МИНЫ"
         icon="💣"
         rightAction={headerActions}
@@ -308,12 +316,24 @@ export default function LobbyScreen({ roomData, myPlayer, isHost, onLeaveRoom })
           <button
             type="button"
             onClick={handleShuffle}
-            className="w-full min-h-[48px] py-3 px-4 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-850 active:scale-98 text-slate-300 text-xs font-extrabold flex items-center justify-center gap-2 transition-all shadow touch-manipulation"
+            className="w-full min-h-[48px] py-3 px-4 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-850 active:scale-98 text-slate-300 text-xs font-extrabold flex items-center justify-center gap-2 transition-all shadow touch-manipulation mb-4"
           >
             <Shuffle className="w-4 h-4" />
             <span>Перемешать команды случайно</span>
           </button>
         )}
+
+        {/* Кнопка выхода / закрытия лобби */}
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={() => setShowExitModal(true)}
+            className="w-full min-h-[50px] py-3 px-4 rounded-2xl bg-rose-950/40 hover:bg-rose-950/70 border border-rose-500/40 text-rose-300 font-extrabold text-sm flex items-center justify-center gap-2 active:scale-98 transition-all touch-manipulation"
+          >
+            <LogOut className="w-4 h-4 text-rose-400" />
+            <span>{isHost ? 'Закрыть и удалить комнату' : 'Покинуть лобби'}</span>
+          </button>
+        </div>
       </main>
 
       {/* Нижняя кнопка старта или ожидание */}
@@ -336,6 +356,14 @@ export default function LobbyScreen({ roomData, myPlayer, isHost, onLeaveRoom })
       </footer>
 
       {showQR && <QRModal roomCode={roomCode} onClose={() => setShowQR(false)} />}
+
+      {/* Модальное окно защищенного выхода */}
+      <ExitConfirmModal
+        isOpen={showExitModal}
+        onClose={() => setShowExitModal(false)}
+        onConfirm={handleConfirmExit}
+        isHost={isHost}
+      />
     </div>
   );
 }

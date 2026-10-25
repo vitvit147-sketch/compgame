@@ -4,6 +4,7 @@ import { SPY_LOCATIONS, SPY_CATEGORIES, getRandomLocation } from '../../data/spy
 import { sounds } from '../../utils/soundEffects';
 import confetti from 'canvas-confetti';
 import GameHeader from '../common/GameHeader';
+import ExitConfirmModal from '../common/ExitConfirmModal';
 import {
   Users,
   Eye,
@@ -115,6 +116,23 @@ export default function SpyGame({ onBackToHub }) {
 
   // Исход игры
   const [gameResult, setGameResult] = useState(null);
+
+  // Защищенный выход из игры (двойное нажатие)
+  const [showExitModal, setShowExitModal] = useState(false);
+  const [pendingExitAction, setPendingExitAction] = useState(null);
+
+  const requestExit = (action) => {
+    setPendingExitAction(() => action);
+    setShowExitModal(true);
+  };
+
+  const handleConfirmExit = () => {
+    setShowExitModal(false);
+    if (pendingExitAction) {
+      pendingExitAction();
+      setPendingExitAction(null);
+    }
+  };
 
   // Применение готового сценария
   const applyPreset = (preset) => {
@@ -615,8 +633,8 @@ export default function SpyGame({ onBackToHub }) {
       {phase === 'PASS' && currentCard && (
         <div className="flex-1 flex flex-col justify-between max-w-lg w-full mx-auto">
           <GameHeader
-            onBack={() => setPhase('SETUP')}
-            backLabel="Настройки"
+            onBack={() => requestExit(() => setPhase('SETUP'))}
+            backLabel="Сброс"
             title="РАЗДАЧА РОЛЕЙ"
             icon="📱"
             badge={`${currentPassIndex + 1} из ${playerCount}`}
@@ -660,7 +678,7 @@ export default function SpyGame({ onBackToHub }) {
       {phase === 'REVEAL' && currentCard && (
         <div className="flex-1 flex flex-col justify-between max-w-lg w-full mx-auto">
           <GameHeader
-            onBack={() => setPhase('SETUP')}
+            onBack={() => requestExit(() => setPhase('SETUP'))}
             backLabel="Сброс"
             title="КАРТОЧКА"
             icon="👁️"
@@ -757,7 +775,7 @@ export default function SpyGame({ onBackToHub }) {
       {phase === 'PLAYING' && (
         <div className="flex-1 flex flex-col justify-between max-w-lg w-full mx-auto">
           <GameHeader
-            onBack={onBackToHub}
+            onBack={() => requestExit(onBackToHub)}
             backLabel="В меню"
             title="РАУНД ИГРЫ"
             icon="⏱️"
@@ -1095,6 +1113,16 @@ export default function SpyGame({ onBackToHub }) {
           </div>
         </div>
       )}
+
+      {/* Защита от случайного сброса игры (двойное подтверждение) */}
+      <ExitConfirmModal
+        isOpen={showExitModal}
+        onClose={() => setShowExitModal(false)}
+        onConfirm={handleConfirmExit}
+        isHost={false}
+        customTitle="Прервать текущую партию?"
+        customDesc="Если вы выйдете сейчас, текущий раунд, роли и таймер будут сброшены. Чтобы подтвердить, нажмите кнопку выхода дважды."
+      />
     </div>
   );
 }

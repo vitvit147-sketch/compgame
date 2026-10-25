@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { bunkerSocket } from '../../utils/bunkerSocket';
 import { sounds } from '../../utils/soundEffects';
+import ExitConfirmModal from '../common/ExitConfirmModal';
 import {
   Shield,
   Eye,
@@ -19,7 +20,8 @@ import {
   Compass,
   Package,
   FileText,
-  Zap
+  Zap,
+  LogOut
 } from 'lucide-react';
 
 const CARD_CONFIG = [
@@ -32,10 +34,11 @@ const CARD_CONFIG = [
   { key: 'specialCondition', label: 'Спецусловие', icon: Zap, color: 'text-pink-400', border: 'border-pink-500/40', bg: 'bg-pink-500/15' }
 ];
 
-export default function BunkerGameScreen({ roomData, myPlayer, isHost }) {
+export default function BunkerGameScreen({ roomData, myPlayer, isHost, onLeaveRoom }) {
   const [activeTab, setActiveTab] = useState('my_cards'); // 'my_cards' | 'table'
   const [selectedCardToReveal, setSelectedCardToReveal] = useState(null);
   const [speakerTimer, setSpeakerTimer] = useState(45);
+  const [showExitModal, setShowExitModal] = useState(false);
 
   const game = roomData.game || {};
   const players = roomData.players || [];
@@ -82,22 +85,33 @@ export default function BunkerGameScreen({ roomData, myPlayer, isHost }) {
 
   return (
     <div className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col justify-start max-w-md w-full mx-auto select-none overflow-y-auto">
-      {/* Верхняя статусная панель */}
-      <header className="sticky top-0 z-30 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top,0px))] flex items-center justify-between shadow-md">
-        <div>
-          <div className="text-xs font-black text-amber-400 uppercase tracking-wider">
-            Раунд {currentRound} из {game.maxRounds || 5}
-          </div>
-          <div className="text-base font-black text-white">
-            {disaster.icon || '☢️'} {disaster.title || 'Катастрофа'}
+      {/* Верхняя статусная панель с кнопкой выхода */}
+      <header className="sticky top-0 z-30 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top,0px))] flex items-center justify-between shadow-md gap-2">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <button
+            type="button"
+            onClick={() => setShowExitModal(true)}
+            className="min-h-[38px] px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-750 hover:bg-rose-950/50 hover:border-rose-500/50 text-slate-400 hover:text-rose-300 flex items-center gap-1 text-xs font-black transition-colors active:scale-95 touch-manipulation shrink-0"
+            title="Покинуть игру"
+          >
+            <LogOut className="w-3.5 h-3.5 text-rose-400" />
+            <span className="hidden xs:inline">Выход</span>
+          </button>
+          <div className="min-w-0">
+            <div className="text-[11px] font-black text-amber-400 uppercase tracking-wider">
+              Раунд {currentRound}/{game.maxRounds || 5}
+            </div>
+            <div className="text-sm font-black text-white truncate max-w-[140px] sm:max-w-[180px]">
+              {disaster.icon || '☢️'} {disaster.title || 'Катастрофа'}
+            </div>
           </div>
         </div>
 
-        <div className="text-right">
-          <div className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
-            Мест в убежище
+        <div className="text-right shrink-0">
+          <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+            Мест
           </div>
-          <div className="text-lg font-black text-emerald-400 font-mono">
+          <div className="text-base font-black text-emerald-400 font-mono">
             {game.shelterCapacity} чел.
           </div>
         </div>
@@ -385,6 +399,18 @@ export default function BunkerGameScreen({ roomData, myPlayer, isHost }) {
           </div>
         </div>
       )}
+
+      {/* Защищенное модальное окно выхода */}
+      <ExitConfirmModal
+        isOpen={showExitModal}
+        onClose={() => setShowExitModal(false)}
+        onConfirm={() => onLeaveRoom?.(isHost)}
+        isHost={isHost}
+        customTitle={isHost ? 'Закрыть убежище для всех?' : 'Покинуть убежище?'}
+        customDesc={isHost
+          ? 'Вы командир убежища (хост). Если вы выйдете, бункер будет закрыт для всех участников.'
+          : 'Вы покинете активную игру и вернетесь в главное меню. Ваш персонаж выйдет из бункера.'}
+      />
     </div>
   );
 }
