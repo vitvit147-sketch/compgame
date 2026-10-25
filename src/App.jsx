@@ -47,6 +47,10 @@ import MafiaOnlineHome from './components/mafia_online/MafiaOnlineHome';
 import MafiaOnlinePlayerLobby from './components/mafia_online/MafiaOnlinePlayerLobby';
 import MafiaOnlineHostLobby from './components/mafia_online/MafiaOnlineHostLobby';
 import MafiaOnlinePlayerGameScreen from './components/mafia_online/MafiaOnlinePlayerGameScreen';
+
+// Компоненты игры «Стикеры» («Кто я?»)
+import { stickersSocket, stickersPlayerId } from './utils/stickersSocket';
+import StickersApp from './components/stickers/StickersApp';
 import './App.css';
 
 export function App() {
@@ -71,6 +75,12 @@ export function App() {
   const [deceptionErrorMessage, setDeceptionErrorMessage] = useState('');
 
   // -------------------------------------------------------------
+  // ЛОГИКА СОКЕТОВ ДЛЯ СТИКЕРОВ ОНЛАЙН («Кто я?»)
+  // -------------------------------------------------------------
+  const [stickersRoomData, setStickersRoomData] = useState(null);
+  const [stickersErrorMessage, setStickersErrorMessage] = useState('');
+
+  // -------------------------------------------------------------
   // ЛОГИКА СОКЕТОВ ДЛЯ БУНКЕРА ОНЛАЙН
   // -------------------------------------------------------------
   const [bunkerRoomData, setBunkerRoomData] = useState(null);
@@ -85,6 +95,8 @@ export function App() {
     } else if (params.get('mafia_room')) {
       setAppMode('mafia');
       setMafiaSubMode('online');
+    } else if (params.get('stickers_room')) {
+      setAppMode('stickers');
     }
   }, []);
 
@@ -212,6 +224,73 @@ export function App() {
     sessionStorage.removeItem('current_deception_room_code');
     setDeceptionRoomData(null);
     setDeceptionErrorMessage('');
+    try {
+      if (window.history && window.location.search) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } catch (e) {}
+  };
+
+  // -------------------------------------------------------------
+  // ЛОГИКА СОКЕТОВ ДЛЯ ИГРЫ «СТИКЕРЫ» («Кто я?»)
+  // -------------------------------------------------------------
+  useEffect(() => {
+    const onStickersRoomCreated = ({ roomCode }) => {
+      sessionStorage.setItem('current_stickers_room_code', roomCode);
+      setStickersErrorMessage('');
+    };
+
+    const onStickersRoomJoined = ({ roomCode }) => {
+      sessionStorage.setItem('current_stickers_room_code', roomCode);
+      setStickersErrorMessage('');
+    };
+
+    const onStickersRoomUpdate = (data) => {
+      setStickersRoomData(data);
+      if (data?.code) {
+        sessionStorage.setItem('current_stickers_room_code', data.code);
+      }
+    };
+
+    const onStickersError = ({ message }) => {
+      setStickersErrorMessage(message);
+    };
+
+    const onStickersReconnectFailed = () => {
+      sessionStorage.removeItem('current_stickers_room_code');
+      setStickersRoomData(null);
+      try {
+        if (window.history && window.location.search) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } catch (e) {}
+    };
+
+    stickersSocket.on('room_created', onStickersRoomCreated);
+    stickersSocket.on('room_joined', onStickersRoomJoined);
+    stickersSocket.on('room_update', onStickersRoomUpdate);
+    stickersSocket.on('error_message', onStickersError);
+    stickersSocket.on('reconnect_failed', onStickersReconnectFailed);
+
+    const savedStickersCode = sessionStorage.getItem('current_stickers_room_code');
+    if (savedStickersCode) {
+      stickersSocket.emit('reconnect_player', { roomCode: savedStickersCode, playerId: stickersPlayerId });
+    }
+
+    return () => {
+      stickersSocket.off('room_created', onStickersRoomCreated);
+      stickersSocket.off('room_joined', onStickersRoomJoined);
+      stickersSocket.off('room_update', onStickersRoomUpdate);
+      stickersSocket.off('error_message', onStickersError);
+      stickersSocket.off('reconnect_failed', onStickersReconnectFailed);
+    };
+  }, []);
+
+  const handleLeaveStickersRoom = (isHost = false) => {
+    stickersSocket.leaveRoom(isHost);
+    sessionStorage.removeItem('current_stickers_room_code');
+    setStickersRoomData(null);
+    setStickersErrorMessage('');
     try {
       if (window.history && window.location.search) {
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -673,7 +752,7 @@ export function App() {
             </div>
           </button>
 
-          {/* Игра 5: КРИМИНАЛИСТ (НОВИНКА) */}
+          {/* Игра 5: КРИМИНАЛИСТ */}
           <button
             type="button"
             onClick={() => setAppMode('deception')}
@@ -686,7 +765,6 @@ export function App() {
               <div>
                 <div className="text-xs text-amber-400 font-extrabold uppercase tracking-wider flex items-center gap-1.5 mb-1">
                   <span>Онлайн со смартфонов</span>
-                  <span className="bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 px-2 py-0.5 rounded-full text-[10px] font-black tracking-normal">НОВИНКА</span>
                 </div>
                 <div className="text-xl font-black text-white">КРИМИНАЛИСТ (Deception)</div>
                 <div className="text-xs sm:text-sm text-slate-400 mt-1">
@@ -695,6 +773,32 @@ export function App() {
               </div>
             </div>
             <div className="w-10 h-10 rounded-2xl bg-slate-800/80 border border-slate-750 flex items-center justify-center text-slate-400 group-hover:text-amber-400 shrink-0">
+              <ChevronRight className="w-5 h-5" />
+            </div>
+          </button>
+
+          {/* Игра 6: СТИКЕРЫ НА ЛОБ («Кто я?») — НОВИНКА */}
+          <button
+            type="button"
+            onClick={() => setAppMode('stickers')}
+            className="w-full p-6 rounded-3xl bg-gradient-to-br from-amber-400/20 via-slate-900 to-slate-900 border-2 border-amber-400 hover:border-yellow-300 active:border-yellow-300 text-left shadow-2xl active:scale-[0.98] transition-all flex items-center justify-between gap-3 touch-manipulation group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-400/25 border-2 border-amber-400/50 flex items-center justify-center text-3xl shrink-0 group-hover:scale-105 transition-transform shadow-inner">
+                🏷️
+              </div>
+              <div>
+                <div className="text-xs text-amber-400 font-extrabold uppercase tracking-wider flex items-center gap-1.5 mb-1">
+                  <span>Онлайн со смартфонов</span>
+                  <span className="bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 px-2 py-0.5 rounded-full text-[10px] font-black tracking-normal">НОВИНКА</span>
+                </div>
+                <div className="text-xl font-black text-white">СТИКЕРЫ («Кто я?»)</div>
+                <div className="text-xs sm:text-sm text-slate-400 mt-1">
+                  Бумажка на лоб: тайные персонажи соседа и вопросы «Да/Нет»
+                </div>
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-400 group-hover:text-amber-400 shrink-0">
               <ChevronRight className="w-5 h-5" />
             </div>
           </button>
@@ -901,6 +1005,23 @@ export function App() {
             onExitToHome={handleLeaveDeceptionRoom}
           />
         )}
+      </div>
+    );
+  }
+
+  // =============================================================
+  // РЕЖИМ 6: СТИКЕРЫ НА ЛОБ («Кто я?», «Лобстер»)
+  // =============================================================
+  if (appMode === 'stickers') {
+    return (
+      <div className="relative min-h-[100dvh] bg-slate-950">
+        <StickersApp
+          roomData={stickersRoomData}
+          errorMessage={stickersErrorMessage}
+          setErrorMessage={setStickersErrorMessage}
+          onBackToHub={() => setAppMode('menu')}
+          onLeaveRoom={handleLeaveStickersRoom}
+        />
       </div>
     );
   }
