@@ -215,12 +215,39 @@ export default function DealingPhase({ players, onDealingComplete, onCancel }) {
                     </span>
                   </div>
 
-                  {/* Role icon area */}
-                  <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4">
-                    <span className="text-4xl">
-                      {roleData?.emoji || faction.emoji}
-                    </span>
-                  </div>
+                  {/* Role illustration (Thought Cabinet Art) */}
+                  {roleData?.image ? (
+                    <div className="w-full max-w-[260px] aspect-[4/5] rounded-2xl overflow-hidden border-2 border-amber-500/30 shadow-2xl shadow-black/80 mb-3 relative group bg-black/50">
+                      <img
+                        src={roleData.image}
+                        alt={player.roleName}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="eager"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-black/30 pointer-events-none" />
+                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none">
+                        <span className="text-[10px] font-mono tracking-widest text-amber-300 uppercase px-2 py-0.5 rounded bg-black/70 backdrop-blur-md border border-amber-500/30">
+                          Кабинет Мыслей
+                        </span>
+                        <span className="text-xs bg-black/60 px-2 py-0.5 rounded-full border border-white/10">
+                          {faction.emoji}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4">
+                      <span className="text-4xl">
+                        {roleData?.emoji || faction.emoji}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Thought Title in Disco Elysium style */}
+                  {roleData?.thoughtTitle && (
+                    <div className="text-[11px] font-mono uppercase tracking-widest text-amber-400/90 mb-1">
+                      «{roleData.thoughtTitle}»
+                    </div>
+                  )}
 
                   {/* Role name */}
                   <h1 className="text-3xl font-black text-white text-center mb-2 tracking-tight">

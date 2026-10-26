@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sun, Skull, Heart, Shield, Sparkles, Volume2, ArrowRight, AlertTriangle } from 'lucide-react';
 import { sound } from '../utils/audio';
+import { ROLES } from '../data/rolesData';
 
 export function MorningSummary({ round, nightResult, players, setPlayers, onProceedToDay }) {
   const { killedPlayerIds, logs, morningAnnouncements, morningSpeech } = nightResult;
@@ -58,8 +59,14 @@ export function MorningSummary({ round, nightResult, players, setPlayers, onProc
             <div className="dead-players-list">
               {killedPlayerIds.map(id => {
                 const player = players.find(p => p.id === id);
+                const roleDef = ROLES[player?.roleId];
                 return (
-                  <div key={id} className="dead-player-item">
+                  <div key={id} className="dead-player-item flex items-center gap-2">
+                    {roleDef?.image && (
+                      <div className="w-8 h-8 rounded-lg overflow-hidden border border-rose-500/50 bg-slate-900 flex-shrink-0">
+                        <img src={roleDef.image} alt={player?.roleName} className="w-full h-full object-cover grayscale opacity-80" />
+                      </div>
+                    )}
                     <span className="dead-num">№{player?.number}</span>
                     <span className="dead-name">{player?.name}</span>
                     <span className="dead-role">({player?.roleName})</span>

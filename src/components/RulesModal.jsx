@@ -66,18 +66,34 @@ export function RulesModal({ isOpen, onClose }) {
                   const faction = FACTIONS[role.faction.toUpperCase()];
                   return (
                     <div key={role.id} className="rule-card" style={{ borderLeftColor: faction?.color }}>
-                      <div className="rule-card-top">
-                        <span className="rule-role-name">{role.name}</span>
-                        <span className="rule-faction-pill" style={{ color: faction?.color }}>
-                          {faction?.badge} {faction?.name}
-                        </span>
-                      </div>
-                      <p className="rule-role-desc">{role.description}</p>
-                      {role.speechNight && (
-                        <div className="rule-speech-hint">
-                          <strong>Реплика ночи:</strong> «{role.speechNight}»
+                      <div className="flex items-start gap-3">
+                        {role.image && (
+                          <div className="w-14 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-slate-700/80 bg-slate-900 shadow">
+                            <img src={role.image} alt={role.name} className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="rule-card-top">
+                            <div>
+                              <span className="rule-role-name">{role.name}</span>
+                              {role.thoughtTitle && (
+                                <span className="text-[10px] font-mono text-amber-400/80 block mt-0.5">
+                                  «{role.thoughtTitle}»
+                                </span>
+                              )}
+                            </div>
+                            <span className="rule-faction-pill" style={{ color: faction?.color }}>
+                              {faction?.badge} {faction?.name}
+                            </span>
+                          </div>
+                          <p className="rule-role-desc">{role.description}</p>
+                          {role.speechNight && (
+                            <div className="rule-speech-hint">
+                              <strong>Реплика ночи:</strong> «{role.speechNight}»
+                            </div>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
                   );
                 })}

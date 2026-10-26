@@ -354,16 +354,30 @@ export function NightPhase({ round, players, onFinishNight, previousNightActions
     ? [nightActions[currentStep.key]].filter(Boolean)
     : (nightActions[currentStep.key] || []);
 
+  const currentRoleDef = ROLES[currentStep.roleId];
+
   return (
     <div className="night-container">
       {/* Шапка шагов */}
-      <div className="night-wizard-header">
-        <div className="step-progress-info">
-          <span className="step-count">Шаг {currentStepIndex + 1} из {steps.length}</span>
-          <h2 className="step-role-title">
-            <Moon size={22} className="text-purple-400" />
-            {currentStep.title}
-          </h2>
+      <div className="night-wizard-header flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          {currentRoleDef?.image && (
+            <div className="w-14 h-16 rounded-xl overflow-hidden border-2 border-amber-500/40 bg-slate-950 shadow-lg flex-shrink-0">
+              <img src={currentRoleDef.image} alt={currentStep.title} className="w-full h-full object-cover" />
+            </div>
+          )}
+          <div className="step-progress-info">
+            <span className="step-count">Шаг {currentStepIndex + 1} из {steps.length}</span>
+            <h2 className="step-role-title">
+              <Moon size={22} className="text-purple-400" />
+              {currentStep.title}
+            </h2>
+            {currentRoleDef?.thoughtTitle && (
+              <span className="text-[11px] font-mono text-amber-400/80 block mt-0.5">
+                «{currentRoleDef.thoughtTitle}»
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="actor-badges">

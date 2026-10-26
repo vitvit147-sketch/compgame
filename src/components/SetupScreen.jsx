@@ -307,12 +307,21 @@ export function SetupScreen({ onStartGame }) {
                       className={`role-select-card ${isSelected ? 'selected' : ''}`}
                       style={{ borderColor: isSelected ? faction.color : undefined }}
                     >
-                      <div className="role-card-top">
-                        <span className="role-name">{role.name}</span>
-                        {role.id === 'lucky' && <span className="tag-lucky">🛡 1 хит</span>}
-                        {role.id === 'revolutionary' && <span className="tag-rev">🚩 Вербовщик</span>}
+                      <div className="flex items-start gap-3 mb-2">
+                        {role.image && (
+                          <div className="w-12 h-14 rounded-lg overflow-hidden flex-shrink-0 border border-slate-700/80 bg-slate-900 shadow">
+                            <img src={role.image} alt={role.name} className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="role-card-top">
+                            <span className="role-name">{role.name}</span>
+                            {role.id === 'lucky' && <span className="tag-lucky">🛡 1 хит</span>}
+                            {role.id === 'revolutionary' && <span className="tag-rev">🚩 Вербовщик</span>}
+                          </div>
+                          <p className="role-card-desc">{role.shortDesc}</p>
+                        </div>
                       </div>
-                      <p className="role-card-desc">{role.shortDesc}</p>
 
                       <div className="role-card-controls">
                         <button 

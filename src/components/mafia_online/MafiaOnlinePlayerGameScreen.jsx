@@ -159,16 +159,39 @@ export default function MafiaOnlinePlayerGameScreen({ roomData, myPlayer, onLeav
           </div>
 
           {isRevealed ? (
-            <div className="pt-4 text-center space-y-3 animate-fadeIn">
-              <div className="w-20 h-20 mx-auto rounded-3xl bg-slate-950/80 border border-white/20 flex items-center justify-center text-5xl shadow-xl">
-                {roleDef.faction === 'mafia' ? '🎩' : roleDef.id === 'sheriff' ? '⭐️' : roleDef.id === 'doctor' ? '💊' : '🕊'}
-              </div>
+            <div className="pt-3 text-center space-y-3 animate-fadeIn">
+              {/* Портрет Кабинета Мыслей / Иконка роли */}
+              {roleDef.image ? (
+                <div className="w-full max-w-[240px] aspect-[4/5] mx-auto rounded-2xl overflow-hidden border-2 border-amber-500/40 shadow-2xl shadow-black relative bg-slate-950">
+                  <img
+                    src={roleDef.image}
+                    alt={roleDef.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-black/30 pointer-events-none" />
+                  <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none">
+                    <span className="text-[10px] font-mono tracking-widest text-amber-300 uppercase px-2 py-0.5 rounded bg-black/75 backdrop-blur-md border border-amber-500/30">
+                      Кабинет Мыслей
+                    </span>
+                    <span className="text-xs">{factionConfig.icon}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="w-20 h-20 mx-auto rounded-3xl bg-slate-950/80 border border-white/20 flex items-center justify-center text-5xl shadow-xl">
+                  {roleDef.faction === 'mafia' ? '🎩' : roleDef.id === 'sheriff' ? '⭐️' : roleDef.id === 'doctor' ? '💊' : '🕊'}
+                </div>
+              )}
 
               <div>
-                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2 border ${factionConfig.badge}`}>
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-1.5 border ${factionConfig.badge}`}>
                   <span>{factionConfig.icon}</span>
                   <span>{factionConfig.title}</span>
                 </span>
+                {roleDef.thoughtTitle && (
+                  <div className="text-[11px] font-mono uppercase tracking-wider text-amber-400/90 mb-1">
+                    «{roleDef.thoughtTitle}»
+                  </div>
+                )}
                 <h2 className={`text-2xl sm:text-3xl font-black uppercase tracking-tight ${factionConfig.text}`}>
                   {roleDef.name}
                 </h2>
