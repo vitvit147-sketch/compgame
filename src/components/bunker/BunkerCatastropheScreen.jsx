@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { bunkerSocket } from '../../utils/bunkerSocket';
 import { sounds } from '../../utils/soundEffects';
-import { AlertTriangle, Shield, Clock, Users, ArrowRight, LogOut } from 'lucide-react';
+import { AlertTriangle, Shield, Clock, Users, ArrowRight, LogOut, ShieldAlert, HeartHandshake } from 'lucide-react';
 import ExitConfirmModal from '../common/ExitConfirmModal';
+import { BUNKER_GAME_MODES } from '../../data/bunkerData';
 
 export default function BunkerCatastropheScreen({ roomData, myPlayer, isHost, onLeaveRoom }) {
   const [showExitModal, setShowExitModal] = useState(false);
@@ -12,6 +13,9 @@ export default function BunkerCatastropheScreen({ roomData, myPlayer, isHost, on
   const players = roomData.players || [];
   const capacity = game.shelterCapacity || Math.floor(players.length / 2);
   const firstRoom = game.bunkerRooms?.[0] || {};
+  const gameMode = game.gameMode || 'threats';
+  const modeConfig = BUNKER_GAME_MODES[gameMode] || BUNKER_GAME_MODES.threats;
+  const firstThreat = game.threats?.[0];
 
   const handleProceed = () => {
     sounds.playTap();
@@ -37,9 +41,14 @@ export default function BunkerCatastropheScreen({ roomData, myPlayer, isHost, on
             <span>Тревога</span>
           </span>
         </div>
-        <span className="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
-          Убежище № {roomData.code}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-black text-amber-300 bg-amber-500/15 px-3 py-1 rounded-full border border-amber-500/30">
+            {modeConfig.badge}
+          </span>
+          <span className="text-xs font-mono font-bold text-slate-400 bg-slate-900 px-2.5 py-1 rounded-full border border-slate-750 hidden sm:inline">
+            № {roomData.code}
+          </span>
+        </div>
       </header>
 
       <main className="max-w-lg w-full mx-auto px-5 sm:px-6 py-6 pb-48">
@@ -70,6 +79,72 @@ export default function BunkerCatastropheScreen({ roomData, myPlayer, isHost, on
             </div>
           </div>
         </section>
+
+        {/* Открытая угроза №1 (Режим Бункер 3.1) */}
+        {gameMode === 'threats' && firstThreat && (
+          <section className="mobile-card border-amber-500/50 bg-amber-950/20">
+            <div className="mobile-card-header">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">⚠️</span>
+                <h3 className="font-black text-sm uppercase tracking-wider text-amber-300">
+                  Угроза убежища №1 (известна со старта):
+                </h3>
+              </div>
+              <span className="text-[10px] font-black uppercase text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30">
+                Бункер 3.1
+              </span>
+            </div>
+            <div className="text-base font-black text-white mb-1.5">
+              {firstThreat.title}
+            </div>
+            <p className="text-xs sm:text-sm text-slate-300 mb-2.5 leading-relaxed">
+              {firstThreat.desc}
+            </p>
+            <div className="p-3 rounded-xl bg-slate-950/80 border border-amber-500/30 text-xs text-amber-200 font-medium">
+              💡 <strong>Кого искать и спасать:</strong> {firstThreat.solution}
+            </div>
+            <div className="text-[11px] text-slate-400 mt-2 font-medium">
+              * Вторая угроза будет раскрыта в 3-м раунде при обследовании дальних отсеков убежища.
+            </div>
+          </section>
+        )}
+
+        {/* Цели классического возрождения */}
+        {gameMode === 'classic' && (
+          <section className="mobile-card border-sky-500/40 bg-sky-950/20">
+            <div className="mobile-card-header">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🏛</span>
+                <h3 className="font-black text-sm uppercase tracking-wider text-sky-300">
+                  Критерии победы: Возрождение цивилизации
+                </h3>
+              </div>
+            </div>
+            <div className="space-y-2 text-xs sm:text-sm text-slate-200">
+              <div className="flex items-start gap-2">
+                <span className="text-sky-400 font-bold">•</span>
+                <span><strong>Демография:</strong> В убежище обязательно должны войти хотя бы 1 фертильный мужчина и 1 женщина для продолжения рода.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-sky-400 font-bold">•</span>
+                <span><strong>Жизнеобеспечение:</strong> Закройте потребности в питании, инженерии и медицине под катастрофу ({disaster.durationYears || 5} лет).</span>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Случайные ЧП (Хардкор) */}
+        {gameMode === 'hardcore' && (
+          <section className="mobile-card border-purple-500/40 bg-purple-950/20">
+            <div className="flex items-center gap-2 text-purple-300 font-black text-sm">
+              <span className="text-xl">🎲</span>
+              <span>Режим «Хардкор»: Угрозы скрыты!</span>
+            </div>
+            <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+              Вы не знаете, какие поломки произойдут в убежище. Собирайте сбалансированную команду и берегите спецусловия и багаж для финала!
+            </p>
+          </section>
+        )}
 
         {/* Первое открытое помещение бункера */}
         {firstRoom.title && (

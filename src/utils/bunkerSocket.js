@@ -272,9 +272,10 @@ class BunkerSocketAdapter {
 
         // Вместимость бункера = половина игроков (округление вверх или вниз в зависимости от настроек)
         const shelterCapacity = Math.max(1, Math.floor(players.length / 2));
+        const gameMode = data.gameMode || 'threats';
         const disaster = getRandomCatastrophe();
         const bunkerRooms = getRandomBunkerRooms(5);
-        const threats = getRandomThreats(2);
+        const threats = getRandomThreats(2, gameMode);
 
         // Каждому игроку генерируем уникальные карточки персонажа (без повторов в комнате!)
         const updatedPlayers = {};
@@ -292,9 +293,11 @@ class BunkerSocketAdapter {
           phase: 'CATASTROPHE',
           round: 1,
           maxRounds: 5,
+          gameMode,
           disaster,
           bunkerRooms,
           threats,
+          threatOverrides: {},
           shelterCapacity,
           speakerSeconds: data.speakerSeconds || 45,
           activeSpeakerId: players[0].id,
@@ -423,16 +426,45 @@ class BunkerSocketAdapter {
           alivePlayers.forEach(p => {
             finalUpdates[`players/${p.id}/status`] = 'in_bunker';
           });
+          // В финале все угрозы открываются
+          if (room.game?.threats) {
+            room.game.threats.forEach((_, idx) => {
+              finalUpdates[`game/threats/${idx}/isRevealed`] = true;
+            });
+          }
           await update(this.roomRef, finalUpdates);
         } else {
           // Иначе следующий раунд обсуждения
-          await update(this.roomRef, {
+          const nextRound = currentRound + 1;
+          const roundUpdates = {
             'game/phase': 'ROUND_DISCUSS',
-            'game/round': currentRound + 1,
+            'game/round': nextRound,
             'game/votesRevealed': false,
             'game/lastExiledId': null
-          });
+          };
+
+          // В режиме 'threats' при наступлении 3-го раунда раскрываем 2-ю угрозу!
+          if (room.game?.gameMode === 'threats' && nextRound >= 3 && room.game?.threats?.[1]) {
+            roundUpdates['game/threats/1/isRevealed'] = true;
+          }
+
+          await update(this.roomRef, roundUpdates);
         }
+        break;
+      }
+
+      case 'toggle_threat_override': {
+        // Командное решение / оспаривание угрозы в финале
+        if (!this.roomRef || !data.threatId) return;
+        const snap = await get(this.roomRef);
+        if (!snap.exists()) return;
+        const currentOverrides = snap.val().game?.threatOverrides || {};
+        const isCurrentTrue = currentOverrides[data.threatId] === true;
+        const newStatus = data.isOvercome !== undefined ? data.isOvercome : !isCurrentTrue;
+
+        await update(ref(database, `bunker_rooms/${this.currentRoomCode}/game/threatOverrides`), {
+          [data.threatId]: newStatus
+        });
         break;
       }
 

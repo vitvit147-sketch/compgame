@@ -3,15 +3,17 @@ import React, { useState } from 'react';
 import { bunkerSocket } from '../../utils/bunkerSocket';
 import { sounds } from '../../utils/soundEffects';
 import GameHeader from '../common/GameHeader';
-import { Users, QrCode, Copy, Check, Play, Crown, Clock, Shield, LogOut } from 'lucide-react';
+import { Users, QrCode, Copy, Check, Play, Crown, Clock, Shield, LogOut, ShieldAlert, Flame, Sparkles } from 'lucide-react';
 import QRModal from '../trapwords/QRModal';
 import ExitConfirmModal from '../common/ExitConfirmModal';
+import { BUNKER_GAME_MODES } from '../../data/bunkerData';
 
 export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom }) {
   const [showQR, setShowQR] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const [speakerSeconds, setSpeakerSeconds] = useState(45);
+  const [gameMode, setGameMode] = useState('threats'); // 'threats' | 'classic' | 'hardcore'
 
   const roomCode = roomData.code;
   const players = roomData.players || [];
@@ -27,7 +29,7 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
 
   const handleStartGame = () => {
     sounds.playTap();
-    bunkerSocket.emit('start_game', { speakerSeconds });
+    bunkerSocket.emit('start_game', { speakerSeconds, gameMode });
   };
 
   const handleConfirmExit = () => {
@@ -108,6 +110,76 @@ export default function BunkerLobby({ roomData, myPlayer, isHost, onLeaveRoom })
             </button>
           </div>
         </section>
+
+        {/* Выбор режима игры (для командира / хоста) */}
+        {isHost ? (
+          <section className="mobile-card">
+            <div className="mobile-card-header">
+              <label className="text-base font-black text-slate-200 flex items-center gap-2.5">
+                <ShieldAlert className="w-5 h-5 text-amber-400" />
+                <span>Режим игры и правила выживания:</span>
+              </label>
+            </div>
+
+            <div className="space-y-3">
+              {Object.values(BUNKER_GAME_MODES).map(mode => {
+                const isSelected = gameMode === mode.id;
+                return (
+                  <button
+                    key={mode.id}
+                    type="button"
+                    onClick={() => {
+                      sounds.playTap();
+                      setGameMode(mode.id);
+                    }}
+                    className={`w-full p-4 rounded-2xl text-left border transition-all active:scale-98 ${
+                      isSelected
+                        ? 'bg-amber-500/15 border-amber-400 text-white shadow-lg shadow-amber-950/40 ring-1 ring-amber-400/40'
+                        : 'bg-slate-950/70 border-slate-800 text-slate-300 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="font-black text-sm text-amber-300 flex items-center gap-2">
+                        <span>{mode.badge}</span>
+                        <span>{mode.name}</span>
+                      </span>
+                      {isSelected ? (
+                        <span className="text-amber-400 font-black text-[11px] bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-500/40">
+                          ✓ Активен
+                        </span>
+                      ) : (
+                        <span className="text-slate-500 text-xs font-bold">Выбрать</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-300 mb-2.5 leading-relaxed">
+                      {mode.shortDesc}
+                    </p>
+                    <div className="space-y-1 pt-2 border-t border-slate-800/80">
+                      {mode.bulletPoints.map((bp, i) => (
+                        <div key={i} className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                          <span className="text-amber-400">•</span>
+                          <span>{bp}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        ) : (
+          <section className="mobile-card border-amber-500/30">
+            <div className="text-xs font-black uppercase text-amber-400 tracking-wider mb-1">
+              Режим партии (настраивает Командир):
+            </div>
+            <div className="text-sm font-black text-white">
+              {BUNKER_GAME_MODES[gameMode]?.name || 'Открытые Угрозы (Бункер 3.1)'}
+            </div>
+            <p className="text-xs text-slate-300 mt-1">
+              {BUNKER_GAME_MODES[gameMode]?.shortDesc}
+            </p>
+          </section>
+        )}
 
         {/* Настройка таймера на выступление (для хоста) */}
         {isHost && (

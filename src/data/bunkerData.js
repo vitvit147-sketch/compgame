@@ -715,6 +715,54 @@ export const FINALE_THREATS = [
 // ГЕНЕРАТОРЫ И ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
 // ============================================================================
 
+// ============================================================================
+// 11. РЕЖИМЫ ИГРЫ И ПРАВИЛА (GAME MODES)
+// ============================================================================
+export const BUNKER_GAME_MODES = {
+  threats: {
+    id: 'threats',
+    name: 'Открытые Угрозы (Бункер 3.1)',
+    badge: '⚠️ Бункер 3.1',
+    icon: 'ShieldAlert',
+    shortDesc: 'Угрозы открываются по ходу раундов. Команда видит вызовы и осознанно спасает нужных специалистов.',
+    bulletPoints: [
+      'Угроза №1 известна с 1-го раунда (вместе с катастрофой)',
+      'Угроза №2 раскрывается в 3-м раунде с новым отсеком',
+      'Прозрачные критерии: защита нужных профессий и инструментов',
+      'Командный вердикт: выжившие могут оспорить спорный исход'
+    ]
+  },
+  classic: {
+    id: 'classic',
+    name: 'Возрождение цивилизации (Классика)',
+    badge: '🏛 Возрождение',
+    icon: 'Crown',
+    shortDesc: 'Классическая цель: баланс полов, продолжение рода, здоровье и ключевые навыки под катастрофу.',
+    bulletPoints: [
+      'Главная цель: спасти человечество от вымирания',
+      'Демография: Нужны фертильные мужчина и женщина для рождения детей',
+      'Здоровье: Изоляция опасных заразных болезней без врача',
+      'Жизнеобеспечение: Питание, медицина и инженерия под катастрофу'
+    ]
+  },
+  hardcore: {
+    id: 'hardcore',
+    name: 'Случайные ЧП (Хардкор)',
+    badge: '🎲 Хардкор',
+    icon: 'Flame',
+    shortDesc: 'Угрозы остаются в тайне до финала. Внезапные испытания с правом защиты спецусловиями.',
+    bulletPoints: [
+      'Угрозы скрыты на протяжении всей партии',
+      'Внезапная проверка на прочность в финале',
+      'Защита багажом, спецусловиями и командными дебатами'
+    ]
+  }
+};
+
+// ============================================================================
+// ГЕНЕРАТОРЫ И ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ============================================================================
+
 // Функция перемешивания Фишера-Йетса
 function shuffle(array) {
   const arr = [...array];
@@ -773,7 +821,266 @@ export function getRandomBunkerRooms(count = 5) {
   return shuffled.slice(0, count);
 }
 
-export function getRandomThreats(count = 2) {
+export function getRandomThreats(count = 2, gameMode = 'threats') {
   const shuffled = shuffle(FINALE_THREATS);
-  return shuffled.slice(0, count);
+  const picked = shuffled.slice(0, count);
+  return picked.map((t, idx) => ({
+    ...t,
+    // В режиме 'threats' 1-я угроза открыта сразу, 2-я откроется в 3-м раунде
+    isRevealed: gameMode === 'threats' ? idx === 0 : false
+  }));
 }
+
+// ============================================================================
+// АНАЛИЗАТОРЫ ВЫЖИВАНИЯ В ФИНАЛЕ (FINALE CRITERIA EVALUATORS)
+// ============================================================================
+
+// 1. Оценка демографии и продолжения человеческого рода
+export function evaluateDemographics(survivors = []) {
+  let males = 0;
+  let females = 0;
+  let fertileMales = 0;
+  let fertileFemales = 0;
+  let pregnantCount = 0;
+
+  survivors.forEach(p => {
+    const bio = p.character?.biology || {};
+    const health = p.character?.health || {};
+    const bioText = (bio.text || '').toLowerCase();
+    const healthText = (health.text || '').toLowerCase();
+
+    const isFemale = bio.gender === 'female' || bioText.includes('женщин') || bioText.includes('девушк');
+    const gender = isFemale ? 'female' : 'male';
+
+    const isInfertile = bio.fertile === false || 
+      /бесплод|климакс|вазэктоми|азоосперми|перевязк.*труб|не может.*детей/i.test(bioText) ||
+      /бесплод/i.test(healthText);
+
+    if (gender === 'female') {
+      females++;
+      if (bio.pregnant || bioText.includes('беременн')) pregnantCount++;
+      if (!isInfertile && (bio.age ? bio.age <= 50 : true)) {
+        fertileFemales++;
+      }
+    } else {
+      males++;
+      if (!isInfertile && (bio.age ? bio.age <= 60 : true)) {
+        fertileMales++;
+      }
+    }
+  });
+
+  const canReproduce = (fertileMales > 0 && fertileFemales > 0) || pregnantCount > 0;
+  let status = 'failed';
+  let title = 'Угроза вымирания';
+  let description = '';
+
+  if (fertileMales > 0 && fertileFemales > 0) {
+    status = 'success';
+    title = 'Род будет продолжен!';
+    description = `В убежище есть фертильные мужчины (${fertileMales}) и женщины (${fertileFemales}). Человеческий род продолжится в новом поколении.`;
+    if (pregnantCount > 0) {
+      description += ` Кроме того, среди выживших уже есть беременность (${pregnantCount})!`;
+    }
+  } else if (pregnantCount > 0) {
+    status = 'warning';
+    title = 'Хрупкая надежда';
+    description = `Среди выживших есть беременная женщина (${pregnantCount}), но не хватает стабильной фертильной пары для долгосрочного воспроизводства колонии.`;
+  } else if (females === 0) {
+    status = 'failed';
+    title = 'Вымирание (только мужчины)';
+    description = 'В бункере не осталось ни одной женщины. Колония неизбежно угаснет со смертью последнего выжившего.';
+  } else if (males === 0) {
+    status = 'failed';
+    title = 'Вымирание (только женщины)';
+    description = 'В бункере не осталось ни одного мужчины. Без банка спермы продолжение рода биологически невозможно.';
+  } else {
+    status = 'failed';
+    title = 'Кризис бесплодия';
+    description = 'Хотя в бункере есть мужчины и женщины, из-за возраста или физиологических факторов никто не способен к зачатию детей.';
+  }
+
+  return {
+    canReproduce,
+    status,
+    title,
+    description,
+    males,
+    females,
+    fertileMales,
+    fertileFemales,
+    pregnantCount
+  };
+}
+
+// 2. Оценка здоровья и эпидемиологического риска
+export function evaluateHealthStatus(survivors = []) {
+  let hasDoctor = false;
+  const doctorNames = [];
+  const severeDiseases = [];
+  let cleanHealthCount = 0;
+
+  survivors.forEach(p => {
+    const char = p.character || {};
+    const prof = char.profession || {};
+    const health = char.health || {};
+    const allText = [prof.name, prof.desc].filter(Boolean).join(' ').toLowerCase();
+
+    if (prof.category === 'med' || /хирург|врач|фельдшер|реаниматолог|эпидемиолог|акушер|фармацевт|травматолог|ветеринар/i.test(allText)) {
+      hasDoctor = true;
+      doctorNames.push(`${p.name} (${prof.name})`);
+    }
+
+    if (health.severity === 'critical' || health.severity === 'bad') {
+      severeDiseases.push({ player: p.name, disease: health.text, severity: health.severity });
+    } else if (health.severity === 'good' || health.severity === 'excellent') {
+      cleanHealthCount++;
+    }
+  });
+
+  let status = 'good';
+  let title = 'Здоровье под контролем';
+  let description = '';
+
+  if (severeDiseases.length === 0) {
+    status = 'excellent';
+    title = 'Идеальная санитария';
+    description = 'Среди выживших нет тяжелых хронических или опасных инфекционных заболеваний. Риск вспышки эпидемии в убежище минимален.';
+  } else if (hasDoctor) {
+    status = 'good';
+    title = 'Контролируемые риски';
+    description = `В группе есть люди с серьезными диагнозами (${severeDiseases.length} чел.), но благодаря медикам (${doctorNames.join(', ')}) их состояние будет стабилизировано.`;
+  } else {
+    status = 'critical';
+    title = 'Медицинский коллапс';
+    description = `В бункере есть тяжелобольные люди (${severeDiseases.map(d => d.player).join(', ')}), но нет ни одного квалифицированного врача. Состояние больных угрожает всей группе.`;
+  }
+
+  return {
+    status,
+    title,
+    description,
+    hasDoctor,
+    doctorNames,
+    severeDiseases,
+    cleanHealthCount
+  };
+}
+
+// 3. Оценка базового жизнеобеспечения под катастрофу
+export function evaluateDisasterSurvival(survivors = [], disaster = {}) {
+  const pillars = [
+    {
+      id: 'food_water',
+      title: 'Продовольствие и вода',
+      icon: '🍞',
+      keywords: ['агроном', 'повар', 'ветеринар', 'егерь', 'рыбак', 'пасечник', 'сантехник', 'геолог', 'семена', 'паек', 'тушенка', 'вода', 'фильтр', 'скважина', 'насос'],
+      covered: false,
+      by: null
+    },
+    {
+      id: 'tech_energy',
+      title: 'Энергетика и техника',
+      icon: '⚡',
+      keywords: ['электрик', 'механик', 'ядерщик', 'сварщик', 'токарь', 'радиоинженер', 'автомеханик', 'инструменты', 'батарея', 'генератор', 'слесарь', 'строитель'],
+      covered: false,
+      by: null
+    },
+    {
+      id: 'disaster_special',
+      title: `Адаптация: ${disaster.title || 'Катастрофа'}`,
+      icon: disaster.icon || '☣️',
+      keywords: (disaster.vitalSkills || []).map(s => s.toLowerCase()),
+      covered: false,
+      by: null
+    }
+  ];
+
+  survivors.forEach(p => {
+    const char = p.character || {};
+    const text = [
+      char.profession?.name,
+      char.profession?.desc,
+      char.hobby?.text,
+      char.baggage?.text,
+      char.fact?.text
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    pillars.forEach(pil => {
+      if (!pil.covered) {
+        for (const kw of pil.keywords) {
+          if (text.includes(kw)) {
+            pil.covered = true;
+            pil.by = `${p.name} (${char.profession?.name || 'Выживший'})`;
+            break;
+          }
+        }
+      }
+    });
+  });
+
+  const coveredCount = pillars.filter(p => p.covered).length;
+  let status = 'failed';
+  if (coveredCount === 3) status = 'excellent';
+  else if (coveredCount >= 2) status = 'good';
+  else if (coveredCount === 1) status = 'warning';
+
+  return {
+    status,
+    pillars,
+    coveredCount,
+    totalPillars: pillars.length
+  };
+}
+
+// 4. Оценка угроз с учетом командных решений и спецусловий
+export function evaluateThreatsWithOverrides(survivors = [], threats = [], overrides = {}) {
+  return threats.map(threat => {
+    // Если команда вручную переопределила исход через голосование / аргумент
+    if (overrides && overrides[threat.id] !== undefined) {
+      const isOverridden = !!overrides[threat.id];
+      return {
+        ...threat,
+        isOvercome: isOverridden,
+        isOverridden: true,
+        reason: isOverridden
+          ? 'Засчитано решением команды (креативный план / предмет выжившего)'
+          : 'Отклонено решением команды'
+      };
+    }
+
+    const required = threat.requiredKeywords || [];
+    let matchedPlayer = null;
+    let matchedItem = '';
+
+    for (const p of survivors) {
+      const char = p.character || {};
+      const allText = [
+        char.profession?.name,
+        char.profession?.desc,
+        char.hobby?.text,
+        char.baggage?.text,
+        char.fact?.text
+      ].filter(Boolean).join(' ').toLowerCase();
+
+      for (const kw of required) {
+        if (allText.includes(kw.toLowerCase())) {
+          matchedPlayer = p;
+          matchedItem = kw;
+          break;
+        }
+      }
+      if (matchedPlayer) break;
+    }
+
+    return {
+      ...threat,
+      isOvercome: !!matchedPlayer,
+      isOverridden: false,
+      reason: matchedPlayer
+        ? `Благодаря опыту / предмету игрока ${matchedPlayer.name} (${matchedPlayer.character?.profession?.name || 'Выживший'})`
+        : 'В бункере не оказалось подходящих специалистов или инструментов'
+    };
+  });
+}
+

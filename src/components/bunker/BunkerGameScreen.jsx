@@ -21,8 +21,12 @@ import {
   Package,
   FileText,
   Zap,
-  LogOut
+  LogOut,
+  ShieldAlert,
+  Flame,
+  CheckCircle2
 } from 'lucide-react';
+import { BUNKER_GAME_MODES } from '../../data/bunkerData';
 
 const CARD_CONFIG = [
   { key: 'profession', label: 'Профессия', icon: Briefcase, color: 'text-amber-400', border: 'border-amber-500/40', bg: 'bg-amber-500/15' },
@@ -47,6 +51,8 @@ export default function BunkerGameScreen({ roomData, myPlayer, isHost, onLeaveRo
   const currentRoom = game.bunkerRooms?.[currentRound - 1] || game.bunkerRooms?.[0] || {};
   const disaster = game.disaster || {};
   const activeSpeaker = players.find(p => p.id === game.activeSpeakerId) || players[0];
+  const gameMode = game.gameMode || 'threats';
+  const threats = game.threats || [];
 
   const alivePlayers = players.filter(p => p.status !== 'exiled');
   const exiledPlayers = players.filter(p => p.status === 'exiled');
@@ -177,29 +183,40 @@ export default function BunkerGameScreen({ roomData, myPlayer, isHost, onLeaveRo
           </div>
         </section>
 
-        {/* Переключатель вкладок (большие эргономичные кнопки) */}
-        <div className="grid grid-cols-2 gap-2.5 bg-slate-900/90 p-2 rounded-2xl border border-slate-750 mb-6">
+        {/* Переключатель вкладок (эргономичные кнопки) */}
+        <div className="grid grid-cols-3 gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-750 mb-6">
           <button
             type="button"
             onClick={() => setActiveTab('my_cards')}
-            className={`min-h-[48px] py-3 rounded-xl text-sm font-black transition-all touch-manipulation ${
+            className={`min-h-[46px] py-2.5 px-1 rounded-xl text-xs sm:text-sm font-black transition-all touch-manipulation ${
               activeTab === 'my_cards'
                 ? 'bg-amber-500 text-slate-950 shadow-md'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            Мои карты (7)
+            Мои карты
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('threats_goals')}
+            className={`min-h-[46px] py-2.5 px-1 rounded-xl text-xs sm:text-sm font-black transition-all touch-manipulation ${
+              activeTab === 'threats_goals'
+                ? 'bg-amber-500 text-slate-950 shadow-md'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            {gameMode === 'threats' ? '⚠️ Угрозы' : '🏛 Цели'}
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('table')}
-            className={`min-h-[48px] py-3 rounded-xl text-sm font-black transition-all touch-manipulation ${
+            className={`min-h-[46px] py-2.5 px-1 rounded-xl text-xs sm:text-sm font-black transition-all touch-manipulation ${
               activeTab === 'table'
                 ? 'bg-amber-500 text-slate-950 shadow-md'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            Все выжившие ({players.length})
+            Стол ({players.length})
           </button>
         </div>
 
@@ -268,7 +285,157 @@ export default function BunkerGameScreen({ roomData, myPlayer, isHost, onLeaveRo
         )}
 
         {/* ======================================================== */}
-        {/* ВКЛАДКА 2: СТОЛ ВЫЖИВШИХ (ВСЕ ИГРОКИ)                   */}
+        {/* ВКЛАДКА 2: УГРОЗЫ И ЦЕЛИ УБЕЖИЩА                        */}
+        {/* ======================================================== */}
+        {activeTab === 'threats_goals' && (
+          <div className="space-y-4">
+            {/* Карточка текущей катастрофы */}
+            <section className="mobile-card border-rose-500/40">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">{disaster.icon || '☢️'}</span>
+                <div>
+                  <div className="text-[10px] font-black uppercase text-rose-400 tracking-wider">Катастрофа снаружи:</div>
+                  <h3 className="text-base font-black text-white">{disaster.title}</h3>
+                </div>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                {disaster.description}
+              </p>
+              <div className="flex items-center justify-between text-xs font-bold pt-2 border-t border-slate-800 text-slate-400">
+                <span>Срок изоляции: <strong className="text-amber-400 font-mono">{disaster.durationYears || 5} лет</strong></span>
+                <span>Мест: <strong className="text-emerald-400 font-mono">{game.shelterCapacity} из {players.length}</strong></span>
+              </div>
+            </section>
+
+            {/* РЕЖИМ 1: УГРОЗЫ БУНКЕР 3.1 */}
+            {gameMode === 'threats' && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                    <ShieldAlert className="w-4 h-4" />
+                    <span>Карты угроз бункера (2 шт.):</span>
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">
+                    Бункер 3.1
+                  </span>
+                </div>
+
+                {/* Угроза 1 (всегда открыта) */}
+                {threats[0] && (
+                  <div className="mobile-card border-amber-500/50 bg-amber-950/20">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-black text-amber-300 flex items-center gap-1.5">
+                        <span>⚠️ Угроза №1</span>
+                      </span>
+                      <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                        Раскрыта
+                      </span>
+                    </div>
+                    <div className="text-sm font-black text-white mb-1">
+                      {threats[0].title}
+                    </div>
+                    <p className="text-xs text-slate-300 mb-2 leading-relaxed">
+                      {threats[0].desc}
+                    </p>
+                    <div className="p-2.5 rounded-xl bg-slate-950/80 border border-amber-500/30 text-xs text-amber-200">
+                      💡 <strong>Кого спасать:</strong> {threats[0].solution}
+                    </div>
+                  </div>
+                )}
+
+                {/* Угроза 2 (открыта с 3-го раунда) */}
+                {threats[1] && (
+                  (threats[1].isRevealed || currentRound >= 3) ? (
+                    <div className="mobile-card border-amber-500/50 bg-amber-950/20 animate-fadeIn">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs font-black text-amber-300 flex items-center gap-1.5">
+                          <span>⚠️ Угроза №2</span>
+                        </span>
+                        <span className="text-[10px] font-black text-amber-400 bg-amber-500/20 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                          Раскрыта в Раунде 3
+                        </span>
+                      </div>
+                      <div className="text-sm font-black text-white mb-1">
+                        {threats[1].title}
+                      </div>
+                      <p className="text-xs text-slate-300 mb-2 leading-relaxed">
+                        {threats[1].desc}
+                      </p>
+                      <div className="p-2.5 rounded-xl bg-slate-950/80 border border-amber-500/30 text-xs text-amber-200">
+                        💡 <strong>Кого спасать:</strong> {threats[1].solution}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mobile-card border-slate-800 bg-slate-950/60 p-4 text-center space-y-1.5">
+                      <div className="w-8 h-8 mx-auto rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500">
+                        <Lock className="w-4 h-4" />
+                      </div>
+                      <div className="text-xs font-black text-slate-400">
+                        Угроза №2 засекречена
+                      </div>
+                      <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+                        Раскроется автоматически в <strong>Раунде 3</strong> при исследовании новых отсеков убежища.
+                      </p>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+
+            {/* РЕЖИМ 2: КЛАССИЧЕСКОЕ ВОЗРОЖДЕНИЕ */}
+            {gameMode === 'classic' && (
+              <div className="space-y-3">
+                <div className="mobile-card border-sky-500/40 bg-sky-950/20">
+                  <div className="text-xs font-black uppercase text-sky-400 tracking-wider mb-2">
+                    Критерии возрождения цивилизации:
+                  </div>
+                  <div className="space-y-2.5 text-xs text-slate-300">
+                    <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                      <div className="font-black text-white flex items-center gap-1.5 mb-1">
+                        <span>👶 Демография (Продолжение рода):</span>
+                      </div>
+                      <p className="text-slate-400 text-[11px]">
+                        В убежище должны выжить хотя бы 1 фертильный мужчина и 1 женщина (18–50 лет без бесплодия).
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                      <div className="font-black text-white flex items-center gap-1.5 mb-1">
+                        <span>🩺 Здоровье и Санитария:</span>
+                      </div>
+                      <p className="text-slate-400 text-[11px]">
+                        Врач или медик жизненно необходимы, если в бункере окажутся люди с тяжелыми хроническими заболеваниями.
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                      <div className="font-black text-white flex items-center gap-1.5 mb-1">
+                        <span>⚙️ Техника и Питание:</span>
+                      </div>
+                      <p className="text-slate-400 text-[11px]">
+                        Специалисты по сельскому хозяйству, электрике и ремонту оборудования для автономии убежища.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* РЕЖИМ 3: ХАРДКОР */}
+            {gameMode === 'hardcore' && (
+              <div className="mobile-card border-purple-500/40 bg-purple-950/20 text-center py-4">
+                <span className="text-2xl mb-1 block">🎲</span>
+                <div className="font-black text-sm text-purple-300">Угрозы бункера скрыты</div>
+                <p className="text-xs text-slate-300 mt-1 max-w-xs mx-auto leading-relaxed">
+                  В финале вас ждут 2 внезапных испытания. Берегите спецусловия и универсальные инструменты из багажа!
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* ВКЛАДКА 3: СТОЛ ВЫЖИВШИХ (ВСЕ ИГРОКИ)                   */}
         {/* ======================================================== */}
         {activeTab === 'table' && (
           <div className="space-y-3.5">
